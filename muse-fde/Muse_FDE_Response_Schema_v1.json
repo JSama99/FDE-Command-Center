@@ -1,0 +1,424 @@
+{
+  "type": "json_schema",
+  "json_schema": {
+    "name": "oia_investigation",
+    "strict": true,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": [
+            "oia/0.1"
+          ]
+        },
+        "engagement_id": {
+          "type": "string"
+        },
+        "operational_goal": {
+          "type": "string"
+        },
+        "truth_map": {
+          "type": "object",
+          "properties": {
+            "formal": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "claim_id": {
+                    "type": "string"
+                  },
+                  "claim_type": {
+                    "type": "string",
+                    "enum": [
+                      "policy_requirement",
+                      "witness_report",
+                      "recorded_event",
+                      "computed_metric",
+                      "interpretation",
+                      "hypothesis",
+                      "unknown"
+                    ]
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "artifact_id": {
+                    "type": "string"
+                  },
+                  "evidence_locator": {
+                    "type": "string"
+                  },
+                  "quote_or_query_id": {
+                    "type": "string"
+                  },
+                  "limitation": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "supported",
+                      "unresolved",
+                      "disputed",
+                      "contradicted",
+                      "not_checked"
+                    ]
+                  }
+                },
+                "required": [
+                  "claim_id",
+                  "claim_type",
+                  "statement",
+                  "artifact_id",
+                  "evidence_locator",
+                  "quote_or_query_id",
+                  "limitation",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "reported": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "claim_id": {
+                    "type": "string"
+                  },
+                  "claim_type": {
+                    "type": "string",
+                    "enum": [
+                      "policy_requirement",
+                      "witness_report",
+                      "recorded_event",
+                      "computed_metric",
+                      "interpretation",
+                      "hypothesis",
+                      "unknown"
+                    ]
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "artifact_id": {
+                    "type": "string"
+                  },
+                  "evidence_locator": {
+                    "type": "string"
+                  },
+                  "quote_or_query_id": {
+                    "type": "string"
+                  },
+                  "limitation": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "supported",
+                      "unresolved",
+                      "disputed",
+                      "contradicted",
+                      "not_checked"
+                    ]
+                  }
+                },
+                "required": [
+                  "claim_id",
+                  "claim_type",
+                  "statement",
+                  "artifact_id",
+                  "evidence_locator",
+                  "quote_or_query_id",
+                  "limitation",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "recorded": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "claim_id": {
+                    "type": "string"
+                  },
+                  "claim_type": {
+                    "type": "string",
+                    "enum": [
+                      "policy_requirement",
+                      "witness_report",
+                      "recorded_event",
+                      "computed_metric",
+                      "interpretation",
+                      "hypothesis",
+                      "unknown"
+                    ]
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "artifact_id": {
+                    "type": "string"
+                  },
+                  "evidence_locator": {
+                    "type": "string"
+                  },
+                  "quote_or_query_id": {
+                    "type": "string"
+                  },
+                  "limitation": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "supported",
+                      "unresolved",
+                      "disputed",
+                      "contradicted",
+                      "not_checked"
+                    ]
+                  }
+                },
+                "required": [
+                  "claim_id",
+                  "claim_type",
+                  "statement",
+                  "artifact_id",
+                  "evidence_locator",
+                  "quote_or_query_id",
+                  "limitation",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unknowns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "formal",
+            "reported",
+            "recorded",
+            "conflicts",
+            "unknowns"
+          ],
+          "additionalProperties": false
+        },
+        "hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hypothesis_id": {
+                "type": "string"
+              },
+              "mechanism": {
+                "type": "string"
+              },
+              "supporting_claim_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "contradicting_claim_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "discriminating_test": {
+                "type": "string"
+              },
+              "prediction_if_true": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "proposed",
+                  "test_pending",
+                  "supported",
+                  "contradicted",
+                  "unresolved",
+                  "validated_under_conditions"
+                ]
+              }
+            },
+            "required": [
+              "hypothesis_id",
+              "mechanism",
+              "supporting_claim_ids",
+              "contradicting_claim_ids",
+              "missing_evidence",
+              "discriminating_test",
+              "prediction_if_true",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "interventions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "approach": {
+                "type": "string",
+                "enum": [
+                  "configure",
+                  "integrate",
+                  "build",
+                  "process_change",
+                  "gather_more_evidence",
+                  "decline"
+                ]
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "risks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "approach",
+              "rationale",
+              "evidence_ids",
+              "risks"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "next_test": {
+          "type": "object",
+          "properties": {
+            "test_name": {
+              "type": "string"
+            },
+            "test_purpose": {
+              "type": "string"
+            },
+            "required_evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preregistered_prediction_draft": {
+              "type": "string"
+            },
+            "authorization_needed": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "test_name",
+            "test_purpose",
+            "required_evidence",
+            "preregistered_prediction_draft",
+            "authorization_needed"
+          ],
+          "additionalProperties": false
+        },
+        "decision": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "proceed_with_bounded_trial",
+                "gather_evidence",
+                "revise_approach",
+                "pause",
+                "decline"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "supporting_claim_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "residual_unknowns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reversal_conditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "human_approval_required": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "state",
+            "rationale",
+            "supporting_claim_ids",
+            "residual_unknowns",
+            "reversal_conditions",
+            "human_approval_required"
+          ],
+          "additionalProperties": false
+        },
+        "disclosures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "engagement_id",
+        "operational_goal",
+        "truth_map",
+        "hypotheses",
+        "interventions",
+        "next_test",
+        "decision",
+        "disclosures"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
