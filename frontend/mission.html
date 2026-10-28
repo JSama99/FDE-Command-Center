@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FDE Command Center — Field Mission (fictional training demonstration)</title>
+<link rel="stylesheet" href="mission.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side glass" aria-label="Workspace navigation">
+    <div class="brand">TalonSight <small>FDE Command Center</small></div>
+    <nav aria-label="Mission workspaces">
+      <button data-ws="ws-overview" aria-current="true">Workspace</button>
+      <button data-ws="ws-evidence" aria-current="false">Evidence Vault</button>
+      <button data-ws="ws-diagnostics" aria-current="false">Diagnostics</button>
+      <button data-ws="ws-decision" aria-current="false">Decision Gate</button>
+      <button data-ws="ws-report" aria-current="false">Final Report</button>
+    </nav>
+    <div class="simflag">Simulation — fictional data. No production actions. No customer engagement.</div>
+  </aside>
+
+  <div class="main">
+    <nav class="topnav glass" aria-label="Mission workspaces (compact)">
+      <button data-ws="ws-overview" aria-current="true">Workspace</button>
+      <button data-ws="ws-evidence" aria-current="false">Evidence</button>
+      <button data-ws="ws-diagnostics" aria-current="false">Diagnostics</button>
+      <button data-ws="ws-decision" aria-current="false">Decision</button>
+      <button data-ws="ws-report" aria-current="false">Report</button>
+    </nav>
+
+    <h1>Field Mission: unacknowledged urgent referrals</h1>
+    <div class="glass panel" id="notice">Training demonstration. All people, companies, and events are fictional. This is not a customer engagement. Nothing here changes production.</div>
+    <div id="error" role="alert"></div>
+
+    <section class="workspace active" id="ws-overview" aria-label="Workspace">
+      <div class="glass panel lifted">
+        <div class="statusline"><span class="mission-name">case-001 mission console</span><span id="missionStatus"></span></div>
+        <div class="hero" id="heroMetrics"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Mission brief</h2>
+        <div class="prose" id="brief"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Investigation timeline</h2>
+        <ol class="steps" id="steps"></ol>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+      <div class="glass panel">
+        <h2>Competing hypotheses (unverified interpretations)</h2>
+        <div id="hypotheses"></div>
+      </div>
+      <div class="glass panel">
+        <details class="ref" id="glossaryBox">
+          <summary>Glossary — plain-language reference (expand)</summary>
+          <div id="glossary"></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="workspace" id="ws-evidence" aria-label="Evidence Vault">
+      <div class="glass panel">
+        <h2>Operating constraints (verified policy quotations)</h2>
+        <div id="constraint"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Source evidence and numerical metrics</h2>
+        <div id="evidence"></div>
+      </div>
+    </section>
+
+    <section class="workspace" id="ws-diagnostics" aria-label="Diagnostics">
+      <div class="glass panel">
+        <h2>Choose a diagnostic follow-up</h2>
+        <div id="diagnostics"></div>
+        <div id="diagResult"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Prediction, reveal, assessment</h2>
+        <div id="experiment"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Reassessment</h2>
+        <div id="reassess"></div>
+      </div>
+      <div class="glass panel">
+        <h2>AI-assisted investigation (optional, explicit)</h2>
+        <div>
+          <button id="mockBtn">Run offline mock investigation (no network)</button>
+          <button id="liveBtn" class="warn">Run live AI investigation (uses server key, explicit)</button>
+        </div>
+        <div id="investigation"></div>
+      </div>
+    </section>
+
+    <section class="workspace" id="ws-decision" aria-label="Decision Gate">
+      <div class="glass panel">
+        <h2>Intervention decision (human approval required)</h2>
+        <div id="decide">
+          <label>Human rationale (required, no placeholders): <input id="decNote" size="60" placeholder="reason for this decision"></label>
+          <button id="approveBtn">Approve</button>
+          <button id="rejectBtn">Reject</button>
+          <button id="deferBtn">Defer</button>
+        </div>
+        <div id="decideResult"></div>
+      </div>
+    </section>
+
+    <section class="workspace" id="ws-report" aria-label="Final Report">
+      <div class="glass panel">
+        <h2>Final mission report (13-section engineering record)</h2>
+        <div><button id="reportBtn">Generate final report</button></div>
+        <div id="report"></div>
+      </div>
+    </section>
+  </div>
+</div>
+<script src="mission.js"></script>
+</body>
+</html>

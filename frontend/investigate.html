@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Case-001 AI Investigation Workspace</title>
+<style>
+body { font-family: system-ui, -apple-system, sans-serif; margin: 2rem auto; max-width: 900px; padding: 0 1rem; color: #1a1a1a; }
+header p { color: #444; }
+section { margin: 1.5rem 0; }
+blockquote { border-left: 3px solid #333; margin: 0.75rem 0; padding: 0.5rem 0.75rem; background: #f6f6f6; }
+blockquote cite { display: block; font-size: 0.8rem; font-style: normal; color: #444; margin-top: 0.25rem; }
+.card { border: 1px solid #999; padding: 0.75rem 1rem; margin: 0.75rem 0; }
+.tag { background: #eee; border: 1px solid #999; padding: 0 0.4rem; font-size: 0.8rem; }
+.refs { font-size: 0.8rem; color: #444; }
+#error { border: 1px solid #900; background: #fee; padding: 0.75rem 1rem; display: none; }
+button { margin-right: 0.5rem; padding: 0.4rem 0.8rem; }
+textarea { width: 100%; max-width: 560px; height: 3rem; }
+</style>
+</head>
+<body>
+<header>
+<h1>Case-001 AI Investigation Workspace</h1>
+<p>All data is fictional. Investigations render only backend-validated output. Hypotheses are unverified interpretations. Nothing here can execute production changes.</p>
+<p><a href="case-001.html">Back to the Evidence Inspection Workspace</a></p>
+</header>
+<section>
+<button id="mockBtn" type="button">Load offline mock investigation</button>
+<button id="liveBtn" type="button">Run live investigation (uses server key)</button>
+<span id="mode"></span>
+</section>
+<div id="error" role="alert"></div>
+<section id="investigation"><p>Choose a mode above. Offline mock needs no key and makes no paid call. Live runs only when you press its button.</p></section>
+<section id="approval" style="display:none">
+<h2>Human approval</h2>
+<p>Proposed corrective actions need your decision. Recording a decision never executes anything.</p>
+<textarea id="note" placeholder="Optional note (max 500 chars)"></textarea><br><br>
+<button id="approveBtn" type="button">Approve</button>
+<button id="rejectBtn" type="button">Reject</button>
+<p id="approvalResult"></p>
+</section>
+<section id="legend">
+<h2>Claim legend</h2>
+<ul>
+<li><span class="tag">human-authored prediction</span> typed by you in the experiment panel.</li>
+<li><span class="tag">ai-generated prediction</span> model output, validated before display.</li>
+<li><span class="tag">deterministic assessment</span> backend comparison of prediction vs revealed result.</li>
+<li><span class="tag">ai-generated interpretation</span> model revision, validated before display.</li>
+<li><span class="tag">human-reviewed revision</span> appears only after you approve a revision. No causal validation has been performed — support is not proof.</li>
+</ul>
+</section>
+<section id="ai-pred">
+<h2>AI-generated prediction (demonstration, not a blind evaluation)</h2>
+<p>Outcome and code share this repository, so this demonstrates workflow, not a genuine predictive evaluation.</p>
+<button id="aiGenMockBtn" type="button">Generate AI prediction (offline mock)</button>
+<button id="aiGenLiveBtn" type="button">Generate AI prediction (live, uses server key)</button>
+<div id="aiReview"></div>
+<label><input type="checkbox" id="aiConfirm" /> I confirm locking this AI-generated prediction.</label><br><br>
+<button id="aiLockBtn" type="button">Lock AI prediction</button>
+</section>
+<section id="experiment">
+<h2>Locked-prediction experiment (EXP-001)</h2>
+<p id="expState"><span class="tag">withheld</span> Loading experiment…</p>
+<div id="expDef"></div>
+<div id="expForm">
+<label>Hypothesis <select id="expHyp"><option value="H-QUEUE">H-QUEUE — queue handling</option><option value="H-ACK">H-ACK — acknowledgment bottleneck</option></select></label><br><br>
+<label>Expected finding <select id="expFinding"><option value="ack-found">ack-found</option><option value="no-ack">no-ack</option></select></label><br><br>
+<textarea id="expObs" placeholder="Expected observation"></textarea><br><br>
+<textarea id="expCrit" placeholder="Success/failure criteria"></textarea><br><br>
+<label>Evidence refs (comma-separated) <input id="expRefs" value="case-003, events.csv" size="32" /></label><br><br>
+<button id="expLockBtn" type="button">Lock prediction</button>
+<button id="expRevealBtn" type="button">Reveal result</button>
+<button id="expAssessBtn" type="button">Assess</button>
+</div>
+<div id="expOut"></div>
+</section>
+<section id="revision">
+<h2>Investigation revision</h2>
+<p>Available after reveal and assessment. The original prediction and result are preserved; the revision is a new version.</p>
+<button id="revMockBtn" type="button">Revise investigation (offline mock)</button>
+<button id="revLiveBtn" type="button">Revise investigation (live, uses server key)</button>
+<div id="revCompare"></div>
+<div id="revApproval" style="display:none">
+<textarea id="revNote" placeholder="Optional note (max 500 chars)"></textarea><br><br>
+<button id="revApproveBtn" type="button">Approve revision</button>
+<button id="revRejectBtn" type="button">Reject revision</button>
+<p id="revApprovalResult"></p>
+</div>
+</section>
+<script src="investigate.js"></script>
+</body>
+</html>

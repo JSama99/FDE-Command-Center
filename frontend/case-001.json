@@ -1,0 +1,256 @@
+{
+  "case_id": "case-001",
+  "fictional": true,
+  "generated_from": {
+    "events_csv": "fixtures/case-001/events.csv",
+    "documents": [
+      "fixtures/case-001/policy.md",
+      "fixtures/case-001/dispatcher.md",
+      "fixtures/case-001/manager.md"
+    ],
+    "assign_rule": "assigned_at <= created_at + 1h",
+    "ack_rule": "ack present, ack >= created, ack >= assigned when assigned, ack <= created_at + 4h",
+    "window_rule": "window_close_at >= created_at + 4h means complete"
+  },
+  "policy_requirements": [
+    {
+      "doc_id": "policy",
+      "quote": "All URGENT referrals must be assigned to a coordinator within 1 hour of creation.",
+      "start": 113,
+      "end": 194
+    },
+    {
+      "doc_id": "policy",
+      "quote": "All URGENT referrals must receive a recorded acknowledgment within 4 hours of creation.",
+      "start": 196,
+      "end": 283
+    },
+    {
+      "doc_id": "policy",
+      "quote": "An observation window that closes before the 4-hour deadline is incomplete and cannot prove a miss.",
+      "start": 285,
+      "end": 384
+    }
+  ],
+  "dispatcher_statements": [
+    {
+      "doc_id": "dispatcher",
+      "quote": "We usually acknowledge urgent cases the same day.",
+      "start": 146,
+      "end": 195
+    },
+    {
+      "doc_id": "dispatcher",
+      "quote": "When the queue spikes, we leave some urgent cases unassigned overnight.",
+      "start": 197,
+      "end": 268
+    }
+  ],
+  "manager_statements": [
+    {
+      "doc_id": "manager",
+      "quote": "No urgent case ever waits unassigned.",
+      "start": 104,
+      "end": 141
+    },
+    {
+      "doc_id": "manager",
+      "quote": "The dashboard shows 100% on-time acknowledgment for urgent cases.",
+      "start": 143,
+      "end": 208
+    },
+    {
+      "doc_id": "manager",
+      "quote": "The only technical issue I have seen is the floor-2 printer jamming on large jobs.",
+      "start": 210,
+      "end": 292
+    }
+  ],
+  "contradictions": [
+    {
+      "title": "Assignment practice vs assignment claims",
+      "sources": [
+        {
+          "ref": "dispatcher",
+          "quote": "When the queue spikes, we leave some urgent cases unassigned overnight."
+        },
+        {
+          "ref": "manager",
+          "quote": "No urgent case ever waits unassigned."
+        }
+      ],
+      "computed": "2 eligible urgent cases have no assignment timestamp (case-004, case-006).",
+      "status": "contradiction between stakeholder statements; computed data sides with the dispatcher admission"
+    },
+    {
+      "title": "Acknowledgment performance vs dashboard claim",
+      "sources": [
+        {
+          "ref": "manager",
+          "quote": "The dashboard shows 100% on-time acknowledgment for urgent cases."
+        }
+      ],
+      "computed": "1 of 7 eligible urgent cases has a valid acknowledgment within 4 hours; 3 are confirmed misses.",
+      "status": "computed data contradicts the dashboard claim"
+    }
+  ],
+  "unresolved_questions": [
+    "case-005 and case-006 have incomplete observation windows and cannot prove a miss.",
+    "case-008 has an acknowledgment recorded before its assignment timestamp and needs a source check."
+  ],
+  "calculations": [
+    {
+      "label": "Eligible urgent cases",
+      "value": 7,
+      "ids": [
+        "case-001",
+        "case-002",
+        "case-003",
+        "case-004",
+        "case-005",
+        "case-006",
+        "case-008"
+      ],
+      "denominator": "8 CSV rows",
+      "rule": "triage == URGENT",
+      "source": "fixtures/case-001/events.csv"
+    },
+    {
+      "label": "With assignment timestamp",
+      "value": 5,
+      "ids": [
+        "case-001",
+        "case-002",
+        "case-003",
+        "case-005",
+        "case-008"
+      ],
+      "denominator": "7 eligible",
+      "rule": "assigned_at present",
+      "source": "fixtures/case-001/events.csv"
+    },
+    {
+      "label": "Assigned within 1 hour",
+      "value": 5,
+      "ids": [
+        "case-001",
+        "case-002",
+        "case-003",
+        "case-005",
+        "case-008"
+      ],
+      "denominator": "7 eligible",
+      "rule": "assigned_at <= created_at + 1h",
+      "source": "fixtures/case-001/events.csv"
+    },
+    {
+      "label": "Valid acknowledgment within 4 hours",
+      "value": 1,
+      "ids": [
+        "case-001"
+      ],
+      "denominator": "7 eligible",
+      "rule": "ack present, ack >= created, ack >= assigned when assigned, ack <= created_at + 4h",
+      "source": "fixtures/case-001/events.csv"
+    },
+    {
+      "label": "Confirmed deadline misses",
+      "value": 3,
+      "ids": [
+        "case-002",
+        "case-003",
+        "case-004"
+      ],
+      "denominator": "7 eligible",
+      "rule": "no valid ack AND window_close_at >= created_at + 4h means complete AND no ordering anomaly",
+      "source": "fixtures/case-001/events.csv"
+    },
+    {
+      "label": "Anomalous sequences (needs source check, not a confirmed miss)",
+      "value": 1,
+      "ids": [
+        "case-008"
+      ],
+      "denominator": "7 eligible",
+      "rule": "assigned_at < created_at OR ack_at < created_at OR ack_at < assigned_at",
+      "source": "fixtures/case-001/events.csv"
+    },
+    {
+      "label": "Incomplete windows (insufficient evidence, not a confirmed miss)",
+      "value": 2,
+      "ids": [
+        "case-005",
+        "case-006"
+      ],
+      "denominator": "7 eligible",
+      "rule": "no valid ack AND NOT (window_close_at >= created_at + 4h means complete)",
+      "source": "fixtures/case-001/events.csv"
+    }
+  ],
+  "categories": {
+    "eligible": [
+      "case-001",
+      "case-002",
+      "case-003",
+      "case-004",
+      "case-008",
+      "case-005",
+      "case-006"
+    ],
+    "with_assignment": [
+      "case-001",
+      "case-002",
+      "case-003",
+      "case-008",
+      "case-005"
+    ],
+    "assigned_within_1h": [
+      "case-001",
+      "case-002",
+      "case-003",
+      "case-008",
+      "case-005"
+    ],
+    "assigned_late": [],
+    "valid_ack_within_4h": [
+      "case-001"
+    ],
+    "confirmed_miss": [
+      "case-002",
+      "case-003",
+      "case-004"
+    ],
+    "anomalous": [
+      "case-008"
+    ],
+    "incomplete": [
+      "case-005",
+      "case-006"
+    ]
+  },
+  "hypotheses": [
+    {
+      "text": "Fictional reading: overnight backlog may explain unassigned urgent cases.",
+      "basis": [
+        "dispatcher backlog statement",
+        "computed: 2 eligible cases without assignment timestamp"
+      ],
+      "status": "unverified interpretation"
+    },
+    {
+      "text": "Fictional reading: same-day acknowledgment may still miss the 4-hour deadline.",
+      "basis": [
+        "dispatcher same-day statement",
+        "computed: 1 late acknowledgment (case-002)"
+      ],
+      "status": "unverified interpretation"
+    }
+  ],
+  "reported_observation_only": {
+    "text": "Floor-2 printer jamming reported by the manager.",
+    "quote": "The only technical issue I have seen is the floor-2 printer jamming on large jobs.",
+    "source": "manager",
+    "causal_relevance": false,
+    "note": "Reported observation only. Not a cause of referral delays."
+  }
+}
