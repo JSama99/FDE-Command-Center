@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FDE Command Center</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 720px; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    .fictional { color: #555; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>FDE Command Center</h1>
+  <p class="fictional">All data shown is fictional.</p>
+  <p><a href="case-001.html">Open case-001 Evidence Inspection Workspace</a> (backend-generated).</p>
+  <p><a href="investigate.html">Open case-001 AI Investigation Workspace</a> (mock or explicit live).</p>
+  <p><a href="mission.html">Start the field mission</a> (single entry point: brief → evidence → prediction → decision → report).</p>
+  <div id="workspace" class="card">Loading…</div>
+  <div id="truthmap" class="card"></div>
+  <div id="ledger" class="card"></div>
+  <script src="app.js"></script>
+</body>
+</html>

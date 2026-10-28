@@ -1,0 +1,29 @@
+
+# Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+private/
+
+# Private evaluation and proprietary material
+eval/
+eval-v2/
+eval-v3/
+eval-v4/
+evaluator-private/
+
+# Generated files
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+.DS_Store
+
+# Private benchmark tooling and dependent tests
+/backend/eval_harness.py
+/backend/eval_live.py
+/backend/eval_private.py
+/tests/test_task008*.py
