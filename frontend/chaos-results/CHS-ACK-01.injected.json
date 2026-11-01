@@ -1,0 +1,64 @@
+{
+  "baseline": {
+    "CHS-A": {
+      "discrepancy": false,
+      "feed_ack": "2026-09-10T10:00:00",
+      "source_ack": "2026-09-10T10:00:00"
+    },
+    "CHS-B": {
+      "discrepancy": false,
+      "feed_ack": "2026-09-10T11:30:00",
+      "source_ack": "2026-09-10T11:30:00"
+    }
+  },
+  "classification": "synthetic simulation",
+  "detector": {
+    "basis": [
+      "CHS-A"
+    ],
+    "flagged": [
+      "CHS-A"
+    ],
+    "name": "feed-source-reconciliation",
+    "rule": "flag cases where source and feed acknowledgments differ"
+  },
+  "expected_vs_observed": {
+    "agreement": true,
+    "detector_output": [
+      "CHS-A"
+    ],
+    "injected_truth": {
+      "fault": "CHS-A acknowledgment dropped from the in-memory feed copy.",
+      "variant": "injected"
+    },
+    "note": "Agreement measures detector accuracy against controlled truth; it is not independent discovery of a fault."
+  },
+  "fixture_digest": "4c3f133a23a2826097bf9816276beba34ee98d3e8cf663f493b694c49c5e3fd9",
+  "injected_fault": {
+    "fault": "CHS-A acknowledgment dropped from the in-memory feed copy.",
+    "variant": "injected"
+  },
+  "observations": {
+    "CHS-A": {
+      "discrepancy": true,
+      "feed_ack": null,
+      "source_ack": "2026-09-10T10:00:00"
+    },
+    "CHS-B": {
+      "discrepancy": false,
+      "feed_ack": "2026-09-10T11:30:00",
+      "source_ack": "2026-09-10T11:30:00"
+    }
+  },
+  "recovery": "not-tested",
+  "refs": [
+    "fixtures/chaos-lab/ack_feed.csv",
+    "fixtures/chaos-lab/ack_source.csv"
+  ],
+  "run_id": "373de21c4d415429ad076cf35a8d35997112425cc780e9c6f33bc944dee9ad56",
+  "scenario_id": "CHS-ACK-01",
+  "schema": "ChaosSimulationResultV1",
+  "status": "completed",
+  "synthetic_fixture_id": "fixtures/chaos-lab",
+  "variant": "injected"
+}

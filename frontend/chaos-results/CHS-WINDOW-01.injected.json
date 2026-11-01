@@ -1,0 +1,78 @@
+{
+  "baseline": {
+    "CHS-W1": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    },
+    "CHS-W2": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    }
+  },
+  "classification": "synthetic simulation",
+  "detector": {
+    "basis": [
+      "CHS-W1",
+      "CHS-W2"
+    ],
+    "flagged": [
+      "CHS-W1",
+      "CHS-W2"
+    ],
+    "name": "window-observability",
+    "rule": "flag cases whose window closes before created_at + 240 minutes; flagged cases are incomplete, never confirmed misses"
+  },
+  "expected_vs_observed": {
+    "agreement": true,
+    "detector_output": [
+      "CHS-W1",
+      "CHS-W2"
+    ],
+    "injected_truth": {
+      "fault": "CHS-W2 window_close moved to 09:00 on the in-memory copy.",
+      "variant": "injected"
+    },
+    "note": "Agreement measures detector accuracy against controlled truth; it is not independent discovery of a fault."
+  },
+  "fixture_digest": "53e3b06df8e8b36d0c4c7c33682e7e5069e3f280f1dc39123aa594b340d87ccb",
+  "injected_fault": {
+    "fault": "CHS-W2 window_close moved to 09:00 on the in-memory copy.",
+    "variant": "injected"
+  },
+  "observations": {
+    "CHS-W1": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    },
+    "CHS-W2": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "recovery": "not-tested",
+  "refs": [
+    "fixtures/chaos-lab/window.csv"
+  ],
+  "run_id": "d2c93baccfb2fc2c5f67e3cce3a75796dfac774b776ae2d89dd58d796f67176c",
+  "scenario_id": "CHS-WINDOW-01",
+  "schema": "ChaosSimulationResultV1",
+  "status": "completed",
+  "synthetic_fixture_id": "fixtures/chaos-lab",
+  "variant": "injected"
+}

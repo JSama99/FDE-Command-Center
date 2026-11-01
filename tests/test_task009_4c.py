@@ -119,7 +119,7 @@ class SanitizedRecordTest(unittest.TestCase):
                     "exception_class", "timeout_occurred", "transmission"):
             self.assertIn(key, record, msg=key)
         self.assertEqual((record["model"], record["max_output_tokens"]),
-                         ("muse-spark-1.3", 2048))
+                         ("muse-spark-1.3", 4096))
         self.assertFalse(record["usage_available"])
         blob = json.dumps(data) + json.dumps(ctx["diagnostics"])
         self.assertNotIn("fictional-probe-key", blob)

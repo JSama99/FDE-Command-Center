@@ -1,0 +1,119 @@
+{
+  "milestone": "MC-006",
+  "acceptance_timestamp_utc": "2026-10-30T23:38:45Z",
+  "vcs": "none (not a git repository; no commit SHA available)",
+  "working_tree": "complete repository as found; only tests/test_mc006_acceptance.py and tests/artifacts/mc-006-acceptance.json added",
+  "test_command": "python3 -m unittest discover -s tests",
+  "test_totals": {
+    "ran": 563,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "skip_reason": "pre-existing real-socket test class skipped: sandbox has no listening sockets"
+  },
+  "acceptance_areas": {
+    "A": "PASS (automated offline: Node harness drove real control.js; tab switches issue no POST)",
+    "B": "PASS (automated offline: edge types/statuses pinned; incomplete/anomalous never confirmed misses)",
+    "C": "PASS (automated offline: H-ACK/H-QUEUE unlabeled by confidence; marker concealed pre-reveal; lock immutable)",
+    "D": "PASS (automated offline: Decision Room GET-only; no receipt route/linkage; snapshot store unwired; approve != executed)",
+    "E": "PASS (automated offline: TP=2 FP=0 TN=2 FN=0, precision=recall=1.0, FPR=FNR=0.0, safety 2/2, C8 unavailable; assign+ack verified, window not-tested; artifacts match fresh production output)",
+    "F": "PASS (automated offline: allowlisted artifacts validate; malformed/missing eval artifact rejected with error state)",
+    "G": "PASS (automated offline: POST inventory pinned to 12 pre-existing routes; no eval/recovery/receipt/snapshot POST; chaos modules import no network/provider code; fixtures byte-identical)",
+    "H": "PASS (this suite: 33 integration tests; manifest self-checks artifact hashes and metrics)"
+  },
+  "evaluation_metrics": {
+    "confusion": {
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0
+    },
+    "metrics": {
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "precision_denominator": 2,
+      "recall": 1.0,
+      "recall_denominator": 2,
+      "false_positive_rate": 0.0,
+      "false_positive_rate_denominator": 2,
+      "false_negative_rate": 0.0,
+      "false_negative_rate_denominator": 2
+    },
+    "safety": {
+      "cases": 2,
+      "correct": 2
+    },
+    "indeterminate": 0,
+    "overall": "pass"
+  },
+  "recovery_statuses": {
+    "CHS-ASSIGN-01/restore-assignments": "verified",
+    "CHS-ACK-01/reconcile-feed": "verified",
+    "CHS-WINDOW-01/none-available": "not-tested"
+  },
+  "source_artifacts": {
+    "frontend/chaos-results/CHS-ASSIGN-01.baseline.json": "df138ba24c110a1c1776beb8d9680af2ca327430fa5cddad654cf59e929f2622",
+    "frontend/chaos-results/CHS-ASSIGN-01.injected.json": "e82685f39931283c8684404c3ffc905f68731c4c26935aecb84ffc86255a8a42",
+    "frontend/chaos-results/CHS-ACK-01.baseline.json": "ac0c344120d095997a108776d84876b9b29553048c1c9b09011511d3a42b77cd",
+    "frontend/chaos-results/CHS-ACK-01.injected.json": "aef4391cc020332d9bf60038c0ab6e7c6513b05d00796501ec83f7a565878b48",
+    "frontend/chaos-results/CHS-WINDOW-01.baseline.json": "5b11ed3f526bfdecc84025ae6fc93182989c1c083c9629c0a7c5283127386afd",
+    "frontend/chaos-results/CHS-WINDOW-01.injected.json": "afb9849c7a53401671a6153ffc8c318a565ee1bec2ea022eeeebb31869001ef5",
+    "frontend/chaos-results/chaos-eval-report.json": "2c03bcf59b78423a8e99809378fbd39515723b953a5200ab2515ef2e1b7099b5",
+    "frontend/chaos-results/CHS-ASSIGN-01.recovery.json": "068de50e689ed97b970ede5ee1cc7e6073ef1afc4c3f8b385b8dfe9437834d8b",
+    "frontend/chaos-results/CHS-ACK-01.recovery.json": "88ba8d4b2315a3c4e2bf977426223ec52de4a61d6172dbbd7f8a3f05e0a57c61",
+    "frontend/chaos-results/CHS-WINDOW-01.recovery.json": "f8a889ef745ba53d120b87596d4af3ab720b79a2b47717c4be2dc0a4edee8c7b",
+    "frontend/control.html": "3326338f8d04fa8bc1d8dac69291db777cd0fb3622319720173909ada9955f12",
+    "frontend/control.js": "a66566060637b864d7da53733d88f2ec4d301217ac74f97fc817d2520a1360f4",
+    "frontend/control.css": "5fdac6fde44396314f61fbbff607941d17d71ec2fec34c8a10ae10b94bd9e2b9",
+    "backend/chaos_simulation.py": "ae6065dda3ce674326ba33a0498814696beac15b4e2c25ad04f0e0d23fc72e49",
+    "backend/chaos_evaluation.py": "17a552ab2d8e1ae1eab9ec392232b1575ad4582b595d99cde0ea9a8a2806ea1e",
+    "backend/chaos_recovery.py": "b14f24357b6b3e14a6693c4dbf66ac204e40d7d0416a795f234ab1432c176094",
+    "backend/server.py": "25f2cddd3c54c9dc75a79defd3489bc9936800b785981909d6be55f39c582326",
+    "backend/mission.py": "14b4be5b6511f8daeab747fe78534cac065884b576a77131088496da305aed6f",
+    "backend/persistence.py": "6a58e6ba4b73b0fed217211ad27e66f66c18680569b4125982a4703102940959",
+    "backend/active_run.py": "42ad3920b3c57df9b821376f8dcf996005321ab6361837df6919ae63171bd568"
+  },
+  "security_boundaries": {
+    "chaos_run_endpoint": "POST /api/chaos/run, loopback + Origin/Host validated, allowlisted scenario/variant only",
+    "post_route_inventory": [
+      "/api/investigation",
+      "/api/experiment/predict",
+      "/api/experiment/reveal",
+      "/api/experiment/assess",
+      "/api/prediction/generate",
+      "/api/prediction/lock",
+      "/api/revision/generate",
+      "/api/revision/approve",
+      "/api/approval",
+      "/api/mission/diagnostic",
+      "/api/mission/intervention",
+      "/api/chaos/run"
+    ],
+    "no_eval_recovery_receipt_snapshot_posts": true,
+    "mission_snapshot_store": "implemented but not wired to server startup or any route",
+    "receipt_linkage": "no authoritative mission-to-receipt link; Decision Room states this explicitly",
+    "provider_calls": "zero; MODEL_API_KEY untouched"
+  },
+  "limitations": [
+    "Physical Safari verification not performed in this environment (no listening sockets, no browser); owner physical acceptance pending.",
+    "Node harness uses DOM stubs, not a real browser engine.",
+    "Synthetic four-case determinate metrics are not a production benchmark.",
+    "No VCS available, so revision identity rests on artifact hashes in this manifest."
+  ],
+  "overall_status": "CONDITIONAL (all automated acceptance passes; physical Safari checklist pending owner review)",
+  "amendments": {
+    "MC-007.3": {
+      "reason": "save-after-accept wiring + startup restoration (server.py); new offline bridge (persistence.py) and pointer (active_run.py, added MC-007.2 after manifest was written)",
+      "superseded_hashes": {
+        "backend/server.py": {
+          "mc006": "8f0c13fa47fcddc2c7aabe90184f6b247c5642b2b91ebbd867a7cf780a8ba676",
+          "mc007_3": "25f2cddd3c54c9dc75a79defd3489bc9936800b785981909d6be55f39c582326"
+        }
+      },
+      "unchanged_mc006_hashes": true
+    }
+  }
+}

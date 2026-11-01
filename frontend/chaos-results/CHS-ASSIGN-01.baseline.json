@@ -1,0 +1,85 @@
+{
+  "baseline": {
+    "CHS-A": {
+      "ack_valid": true,
+      "assign_delay_min": 20.0,
+      "breaches_1h": false,
+      "classification": "acknowledged",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 30.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 40.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "classification": "synthetic simulation",
+  "detector": {
+    "basis": [],
+    "flagged": [],
+    "name": "assignment-delay-1h",
+    "rule": "flag cases with assigned_at - created_at > 60 minutes"
+  },
+  "expected_vs_observed": {
+    "agreement": true,
+    "detector_output": [],
+    "injected_truth": {
+      "fault": "none (baseline variant)",
+      "variant": "baseline"
+    },
+    "note": "Agreement measures detector accuracy against controlled truth; it is not independent discovery of a fault."
+  },
+  "fixture_digest": "aa79075c9e010203f72e6e41b13e9f5c324ecc68cb7156ed6a9aad2faddd9d8b",
+  "injected_fault": {
+    "fault": "none (baseline variant)",
+    "variant": "baseline"
+  },
+  "observations": {
+    "CHS-A": {
+      "ack_valid": true,
+      "assign_delay_min": 20.0,
+      "breaches_1h": false,
+      "classification": "acknowledged",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 30.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 40.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "recovery": "not-tested",
+  "refs": [
+    "fixtures/chaos-lab/assign.csv"
+  ],
+  "run_id": "98429b3f8d9f8d264ec57ea10cba5670b51910317356eb0617378008815ffab6",
+  "scenario_id": "CHS-ASSIGN-01",
+  "schema": "ChaosSimulationResultV1",
+  "status": "completed",
+  "synthetic_fixture_id": "fixtures/chaos-lab",
+  "variant": "baseline"
+}

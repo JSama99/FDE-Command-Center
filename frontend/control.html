@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FDE Mission Control — case-001 (fictional training demonstration)</title>
+<link rel="stylesheet" href="mission.css">
+<link rel="stylesheet" href="control.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side glass" aria-label="Mission Control navigation">
+    <div class="brand">TalonSight <small>FDE Mission Control</small></div>
+    <nav aria-label="Mission Control views">
+      <button data-view="view-overview" aria-current="true">Overview</button>
+      <button data-view="view-investigation" aria-current="false">Investigation</button>
+      <button data-view="view-hypothesis" aria-current="false">Hypothesis Lab</button>
+      <button data-view="view-decision" aria-current="false">Decision Room</button>
+      <button data-view="view-chaos" aria-current="false">Chaos Lab</button>
+    </nav>
+    <div class="simflag">Simulation — fictional data. No production actions. No provider calls from this screen.</div>
+    <p><a id="fieldLink" class="field-link" href="mission.html">Open the Field Mission →</a></p>
+  </aside>
+
+  <div class="main">
+    <nav class="topnav glass" aria-label="Mission Control views (compact)">
+      <button data-view="view-overview" aria-current="true">Overview</button>
+      <button data-view="view-investigation" aria-current="false">Investigation</button>
+      <button data-view="view-hypothesis" aria-current="false">Hypothesis Lab</button>
+      <button data-view="view-decision" aria-current="false">Decision Room</button>
+      <button data-view="view-chaos" aria-current="false">Chaos Lab</button>
+    </nav>
+
+    <h1>Mission Control: unacknowledged urgent referrals</h1>
+    <div class="glass panel" id="notice">Training demonstration. All people, companies, and events are fictional. Read-only review: this screen never locks predictions, reveals outcomes, or records decisions.</div>
+    <div id="error" role="alert"></div>
+
+    <section class="mcview active" id="view-overview" aria-label="Mission Control overview">
+      <div class="glass panel lifted">
+        <div class="statusline"><span class="mission-name">case-001 control overview</span><span id="mcStatus"></span></div>
+        <div class="hero" id="mcHero"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Mission brief</h2>
+        <div class="prose" id="mcBrief"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Investigation stages</h2>
+        <ol class="steps" id="mcSteps"></ol>
+      </div>
+    </section>
+
+    <section class="mcview" id="view-investigation" aria-label="Investigation context">
+      <div class="glass panel">
+        <h2>Investigation summary</h2>
+        <div class="hero" id="mcSummary"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Investigation map</h2>
+        <div role="tablist" aria-label="Map views">
+          <button data-gtab="evidence" aria-pressed="true">Evidence map</button>
+          <button data-gtab="illustrative" aria-pressed="false">Illustrative workflow</button>
+        </div>
+        <div id="gtabEvidence">
+          <svg id="mcGraph" viewBox="0 0 660 420" role="group" aria-label="Evidence-backed relationship map"></svg>
+          <div class="refs">Solid cyan = verified source or derivation · dashed gold = reported stakeholder assertion · dotted violet = hypothesized relevance. No arrowheads, no causal claims: relevance is not causation. Unresolved questions appear in the ledger only and are never drawn as relationships.</div>
+        </div>
+        <div id="gtabIllustrative" style="display:none">
+          <div class="card illust-banner"><strong>Illustrative workflow — not verified system topology.</strong> Teaching diagram with fictional components; its connections are not evidence and prove nothing about delivery or acknowledgment.</div>
+          <svg id="mcIllust" viewBox="0 0 640 160" role="img" aria-label="Illustrative workflow diagram"></svg>
+        </div>
+      </div>
+      <div class="mc-split">
+        <div class="glass panel">
+          <h2>Evidence ledger</h2>
+          <div id="mcLoading">Loading backend evidence…</div>
+          <label>Search evidence: <input id="mcSearch" type="search" placeholder="filter by title or description"></label>
+          <div id="mcFilters" role="group" aria-label="Filter by classification"></div>
+          <ul id="mcList"></ul>
+        </div>
+        <div class="glass panel lifted" aria-live="polite">
+          <h2>Context inspector</h2>
+          <div id="mcInspector"><p>Select an evidence item to inspect its source, classification, and provenance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mcview" id="view-hypothesis" aria-label="Hypothesis Lab">
+      <div class="glass panel">
+        <h2>Hypothesis Lab (read-only)</h2>
+        <div class="prose">The two competing explanations, side by side with the evidence relevant to each. Nothing here locks predictions, reveals outcomes, or records decisions.</div>
+        <p><a class="field-link" href="mission.html">Perform authorized actions in the Field Mission →</a></p>
+      </div>
+      <div id="mcLab"></div>
+      <div class="glass panel">
+        <h2>Shared open questions</h2>
+        <div id="mcLabQuestions"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Diagnostic status</h2>
+        <div id="mcLabStatus"></div>
+      </div>
+    </section>
+
+    <section class="mcview" id="view-decision" aria-label="Decision Room">
+      <div class="glass panel">
+        <h2>Decision Room</h2>
+        <div class="prose" id="mcDecisionContext"></div>
+      </div>
+      <div class="status-grid" id="mcDecisionCards"></div>
+      <div class="glass panel warn">
+        <strong>Recommendation is not authorization.</strong>
+        <span>Approval records a human decision on the exact proposal version. Nothing here deploys, executes, or claims remediation.</span>
+      </div>
+      <div class="glass panel">
+        <h2>Proposal under review</h2>
+        <div id="mcProposal"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Verification plan</h2>
+        <div id="mcVerify"></div>
+      </div>
+      <div class="glass panel">
+        <h2>Human review</h2>
+        <div id="mcHumanReview"></div>
+        <p><a class="field-link" href="mission.html">Open the Field Mission to approve, reject, defer, or report →</a></p>
+      </div>
+      <div class="glass panel">
+        <h2>Investigation receipt</h2>
+        <div class="prose">
+          <p><strong>No verified receipt linkage for this Field Mission.</strong></p>
+          <p>Private investigation receipts exist offline, but none can be claimed as this mission's receipt. Stored receipts carry only the case identifier (case-001) — no mission, experiment, prediction, or assessment identifier — so sharing case-001 does not establish a receipt-to-mission relationship. This browser interface also has no read-only receipt endpoint (none is authorized under the current scope), so no receipt can be retrieved or integrity-checked here: receipt verification is unavailable through this interface.</p>
+          <p>A linked receipt would report five independent facts separately — stored, integrity-checked, adjudicated, authorized, executed — and a stored hash alone would prove only that a stored file is unchanged, not that its investigation was accurate, independently validated, or causally correct. Pending adjudication stays pending.</p>
+          <p>Future integration needs: record the mission and prediction identifiers in new receipts, plus a scoped read-only endpoint serving only the linked receipt. Stored receipts remain reviewable through the existing offline receipt command; authorized mission actions stay in the Field Mission.</p>
+        </div>
+        <p><a class="field-link" href="mission.html">Open the Field Mission →</a>
+        <a class="field-link" href="investigate.html">Open the AI Investigation Workspace →</a></p>
+      </div>
+    </section>
+
+    <section class="mcview" id="view-chaos" aria-label="Chaos Lab">
+      <div class="glass panel">
+        <h2>Chaos Lab (synthetic demonstration)</h2>
+        <div class="prose">Fictional failure scenarios for exploring what would be detectable and what evidence recovery would require. Nothing here executes, measures, or verifies anything.</div>
+        <div class="ctabs" role="tablist" aria-label="Chaos Lab sections">
+          <button data-ctab="scenario" aria-pressed="true">Scenario</button>
+          <button data-ctab="results" aria-pressed="false">Simulation Results</button>
+          <button data-ctab="evaluation" aria-pressed="false">Chaos Crew Evaluation</button>
+          <button data-ctab="recovery" aria-pressed="false">Recovery Verification</button>
+        </div>
+      </div>
+      <div id="ctabScenario">
+        <div class="glass panel">
+          <h2>System under test</h2>
+          <svg id="mcChaosFlow" viewBox="0 0 660 160" role="img" aria-label="Illustrative fictional workflow"></svg>
+          <div class="refs">Illustrative workflow — not verified system topology. Fictional components; connections prove nothing.</div>
+        </div>
+        <div class="chaos-grid">
+          <div class="glass panel">
+            <h2>Scenario catalog</h2>
+            <div id="mcScenarioList"></div>
+          </div>
+          <div class="glass panel lifted" aria-live="polite">
+            <h2>Experiment preview</h2>
+            <div id="mcScenarioDetail"><p>Select a scenario to preview its hypothesized failure, test, and falsification conditions.</p></div>
+          </div>
+        </div>
+        <div class="glass panel">
+          <h2>Results</h2>
+          <div id="mcChaosResults"><p><span class="tag">Not run</span> No verified results. Recovery not established.</p></div>
+        </div>
+      </div>
+      <div id="ctabResults" hidden>
+        <div class="glass panel">
+          <h2>Simulation Results (previously generated)</h2>
+          <div class="prose">Offline synthetic simulations — previously generated results. Viewing these never executes a simulation.</div>
+          <div id="mcResultSummary"><p class="refs">Open this tab to load the summary.</p></div>
+        </div>
+      </div>
+      <div id="ctabEvaluation" hidden>
+        <div class="glass panel">
+          <h2>Chaos Crew Evaluation (previously generated)</h2>
+          <div class="prose">Offline synthetic evaluation — previously generated report.</div>
+          <div id="mcEvalReport"><p class="refs">Open this tab to load the report.</p></div>
+        </div>
+      </div>
+      <div id="ctabRecovery" hidden>
+        <div class="glass panel">
+          <h2>Recovery Verification (previously generated)</h2>
+          <div class="prose">Offline synthetic recovery records. Verified here means only: the specified synthetic repair passed its defined post-repair checks — never production recovery.</div>
+          <div id="mcRecoveryRecords"><p class="refs">Open this tab to load the records.</p></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+<script src="control.js"></script>
+</body>
+</html>

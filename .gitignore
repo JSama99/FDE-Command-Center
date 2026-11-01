@@ -33,3 +33,6 @@ __pycache__/
 /backend/eval_live.py
 /backend/eval_private.py
 /tests/test_task008*.py
+
+# Local mission persistence
+mission-snapshots/

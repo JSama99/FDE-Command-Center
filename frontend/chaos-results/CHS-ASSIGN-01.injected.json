@@ -1,0 +1,97 @@
+{
+  "baseline": {
+    "CHS-A": {
+      "ack_valid": true,
+      "assign_delay_min": 20.0,
+      "breaches_1h": false,
+      "classification": "acknowledged",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 30.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 40.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "classification": "synthetic simulation",
+  "detector": {
+    "basis": [
+      "CHS-A",
+      "CHS-B",
+      "CHS-C"
+    ],
+    "flagged": [
+      "CHS-A",
+      "CHS-B",
+      "CHS-C"
+    ],
+    "name": "assignment-delay-1h",
+    "rule": "flag cases with assigned_at - created_at > 60 minutes"
+  },
+  "expected_vs_observed": {
+    "agreement": true,
+    "detector_output": [
+      "CHS-A",
+      "CHS-B",
+      "CHS-C"
+    ],
+    "injected_truth": {
+      "fault": "Assignment timestamps shifted +300 minutes on the in-memory copy.",
+      "variant": "injected"
+    },
+    "note": "Agreement measures detector accuracy against controlled truth; it is not independent discovery of a fault."
+  },
+  "fixture_digest": "aa79075c9e010203f72e6e41b13e9f5c324ecc68cb7156ed6a9aad2faddd9d8b",
+  "injected_fault": {
+    "fault": "Assignment timestamps shifted +300 minutes on the in-memory copy.",
+    "variant": "injected"
+  },
+  "observations": {
+    "CHS-A": {
+      "ack_valid": false,
+      "assign_delay_min": 320.0,
+      "breaches_1h": true,
+      "classification": "anomalous-needs-source-check",
+      "ordering_anomaly": true,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 330.0,
+      "breaches_1h": true,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 340.0,
+      "breaches_1h": true,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "recovery": "not-tested",
+  "refs": [
+    "fixtures/chaos-lab/assign.csv"
+  ],
+  "run_id": "ea04e95ed3daf398378a49f6ccec07d1166d1d64c6eee801a40b4a4603ffe717",
+  "scenario_id": "CHS-ASSIGN-01",
+  "schema": "ChaosSimulationResultV1",
+  "status": "completed",
+  "synthetic_fixture_id": "fixtures/chaos-lab",
+  "variant": "injected"
+}

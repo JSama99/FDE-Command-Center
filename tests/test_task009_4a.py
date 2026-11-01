@@ -30,10 +30,10 @@ def stub_urlopen(payload, captured):
 
 class OutputCapTest(unittest.TestCase):
     def test_default_cap_present_in_body(self):
-        self.assertEqual(MAX_OUTPUT_TOKENS, 2048)
+        self.assertEqual(MAX_OUTPUT_TOKENS, 4096)
         self.assertEqual(MIN_OUTPUT_TOKENS, 16)
         body = build_responses_payload("muse-spark-1.3", "x")
-        self.assertEqual(body["max_output_tokens"], 2048)
+        self.assertEqual(body["max_output_tokens"], 4096)
         self.assertEqual(body["model"], "muse-spark-1.3")
 
     def test_cap_sent_on_live_path(self):
@@ -43,7 +43,28 @@ class OutputCapTest(unittest.TestCase):
                         stub_urlopen(VALID_RESPONSES_FIXTURE, captured)):
             adapter.request_text("hello")
         body = json.loads(captured["request"].data.decode("utf-8"))
-        self.assertEqual(body["max_output_tokens"], 2048)
+        self.assertEqual(body["max_output_tokens"], 4096)
+
+    def test_live_investigation_path_sends_new_cap(self):
+        import urllib.error
+
+        from backend.investigation import produce_investigation
+        from backend.meta_adapter import ProviderFailure
+
+        captured: dict = {}
+
+        def fail_after_capture(request, timeout=None):
+            captured["request"] = request
+            raise urllib.error.HTTPError(
+                request.full_url, 500, "Internal Server Error", {}, None)
+
+        adapter = MetaModelAdapter(api_key="fictional-test-key")
+        with mock.patch("urllib.request.urlopen", fail_after_capture):
+            with self.assertRaises(ProviderFailure):
+                produce_investigation(adapter, ".")
+        body = json.loads(captured["request"].data.decode("utf-8"))
+        self.assertEqual(body["model"], "muse-spark-1.3")
+        self.assertEqual(body["max_output_tokens"], 4096)
 
     def test_custom_cap_honored(self):
         captured: dict = {}

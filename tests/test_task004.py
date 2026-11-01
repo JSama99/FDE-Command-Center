@@ -71,6 +71,12 @@ def valid_payload() -> dict:
             {
                 "text": "Extend observation windows for late-day cases, then recompute.",
                 "refs": ["events.csv"],
+                "question": "Do late-day cases miss only because their windows are incomplete?",
+                "outcomes": {
+                    "supports": "Extended windows still show misses.",
+                    "weakens": "Extended windows convert misses to valid acknowledgments.",
+                },
+                "tests": [0, 1],
             },
         ],
         "provisional_recommendation": {
@@ -145,7 +151,8 @@ class InvestigationValidationTest(unittest.TestCase):
 
     def test_malformed_json_rejected(self):
         class RawAdapter:
-            def request_structured(self, context, instructions=None):
+            def request_structured(self, context, instructions=None,
+                                   reasoning_effort=None):
                 return "{bad json"
 
         with self.assertRaises(MalformedResponseError):
