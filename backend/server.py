@@ -15,7 +15,10 @@ Run: python3 -m backend.server [--port 8000]
 
 from __future__ import annotations
 
+import copy
 import json
+import sys
+import threading
 import time
 import urllib.parse
 import uuid
@@ -31,6 +34,11 @@ from .ai_prediction import (
     produce_revision,
     validate_prediction,
     validate_revision,
+)
+from .chaos_simulation import (
+    ChaosError,
+    run_simulation,
+    validate_simulation_result,
 )
 from .experiment import (
     ExperimentError,
@@ -81,6 +89,8 @@ ERROR_MESSAGES = {
     "invalid_investigation": "Model output failed evidence validation and was not displayed.",
     "bad_request": "Request not understood.",
     "not_found": "Unknown path.",
+    "persistence-failed": "Durable save failed; previous accepted state preserved. Nothing was acknowledged as durably accepted.",
+    "persistence-degraded": "Persistence needs operator recovery (see server log). Reads continue; mission changes are refused until restart reconciles.",
 }
 
 
@@ -131,10 +141,15 @@ def _provider_failure_response(ctx: dict, exc: BaseException,
     else:
         reach = ("It is not established whether the request reached the "
                  "provider.")
+    status_detail = ""
+    if record.get("response_status") is not None:
+        status_detail = f" Provider response status: {record['response_status']}."
+        if record.get("incomplete_reason"):
+            status_detail += f" Incomplete reason: {record['incomplete_reason']}."
     message = (f"Provider request failed: {explanation} "
-               f"[reference {correlation_id}]. {reach} No usage information "
-               f"is available, no investigation was produced, and nothing "
-               f"was executed.")
+               f"[reference {correlation_id}].{status_detail} {reach} No usage "
+               f"information is available, no investigation was produced, "
+               f"and nothing was executed.")
     return 502, {"error": "provider_unavailable", "message": message,
                  "diagnostics": record}, "application/json"
 
@@ -157,12 +172,126 @@ def _static(path: str) -> tuple[int, bytes, str] | None:
     return 200, target.read_bytes(), CONTENT_TYPES.get(target.suffix, "application/octet-stream")
 
 
+LOOPBACK_PEERS = ("127.0.0.1", "::1")
+CHAOS_MAX_BODY = 2048
+
+
+def _chaos_transport_ok(transport: dict | None) -> bool:
+    """Local-execution boundary: loopback peer plus expected local
+    Origin and Host. Default-deny: no transport evidence, no execution.
+    Development-only control, not customer-grade authentication."""
+    if not isinstance(transport, dict):
+        return False
+    if transport.get("peer") not in LOOPBACK_PEERS:
+        return False
+    if transport.get("origin") not in transport.get("local_origins", ()):
+        return False
+    if transport.get("host") not in transport.get("local_hosts", ()):
+        return False
+    return True
+
+
+def _chaos_run(body: bytes | None, transport: dict | None) -> tuple[int, dict, str]:
+    if not _chaos_transport_ok(transport):
+        return 403, {"error": "forbidden",
+                      "message": "Local execution boundary rejected this request."}, \
+            "application/json"
+    if body is None or not body.strip():
+        return 400, {"error": "bad_request",
+                      "message": ERROR_MESSAGES["bad_request"]}, "application/json"
+    if len(body) > CHAOS_MAX_BODY:
+        return 413, {"error": "too_large",
+                      "message": "Request too large."}, "application/json"
+    try:
+        payload = json.loads(body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return 400, {"error": "bad_request",
+                      "message": ERROR_MESSAGES["bad_request"]}, "application/json"
+    if (not isinstance(payload, dict)
+            or set(payload) != {"scenario_id", "variant"}
+            or not isinstance(payload.get("scenario_id"), str)
+            or not isinstance(payload.get("variant"), str)):
+        return 400, {"error": "bad_request",
+                      "message": ERROR_MESSAGES["bad_request"]}, "application/json"
+    try:
+        result = run_simulation(payload["scenario_id"], payload["variant"])
+        validate_simulation_result(result)
+    except ChaosError as exc:
+        return 400, {"error": exc.code,
+                      "message": "Simulation request rejected."}, \
+            "application/json"
+    except Exception:  # noqa: BLE001 - sanitized failure, never raw internals
+        return 500, {"error": "simulation-failed",
+                      "message": "Simulation failed; nothing was executed "
+                                 "on any external system."}, "application/json"
+    return 200, {"ran": True, "executed_at": int(time.time()),
+                  "result": result}, "application/json"
+
+
+_PERSIST_LOCK = threading.Lock()
+
+# State-changing mission operations persisted save-after-accept.
+# Reads, drafts (pending_ai), diagnostics-only writes, and chaos
+# execution are never committed here.
+_DURABLE_POST = {
+    "/api/experiment/predict", "/api/experiment/reveal",
+    "/api/experiment/assess", "/api/prediction/lock",
+    "/api/revision/generate", "/api/revision/approve",
+    "/api/mission/diagnostic", "/api/mission/intervention",
+    "/api/approval",
+}
+_DURABLE_GET = {"/api/mission/diagnostic/result"}
+
+
+def _durable_handle(method: str, target: str, body: bytes | None,
+                    ctx: dict,
+                    transport: dict | None) -> tuple[int, bytes | dict, str]:
+    """Save-after-accept wrapper. Legacy in-place behavior applies when
+    the context carries no "_store_dir" (plain new_context() callers,
+    including the pre-existing test suite); booted server contexts
+    always carry one and persist."""
+    from .persistence import PersistenceError, commit_transition
+
+    if "_store_dir" not in ctx:
+        return handle_request(method, target, body, ctx, transport,
+                              _durable_applied=True)
+    with _PERSIST_LOCK:
+        if ctx.get("_persistence_degraded"):
+            return 503, {"error": "persistence-degraded",
+                         "message": ERROR_MESSAGES["persistence-degraded"]}, \
+                "application/json"
+        ctx.setdefault("_snapshot_revision", 0)
+        ctx.setdefault("_persistence_degraded", False)
+        work = copy.deepcopy(ctx)
+        status, payload, content_type = handle_request(
+            method, target, body, work, transport, _durable_applied=True)
+        if status != 200:
+            # Rejected transitions write nothing; keep failure diagnostics.
+            ctx["diagnostics"] = work.get("diagnostics", ctx["diagnostics"])
+            return status, payload, content_type
+        try:
+            commit_transition(ctx, work)
+        except PersistenceError as exc:
+            code = "persistence-degraded" \
+                if ctx.get("_persistence_degraded") else "persistence-failed"
+            status = 503 if code == "persistence-degraded" else 500
+            message = ERROR_MESSAGES[code] + f" ({exc.code})"
+            return status, {"error": code, "message": message}, \
+                "application/json"
+        return status, payload, content_type
+
+
 def handle_request(
-    method: str, target: str, body: bytes | None, ctx: dict
+    method: str, target: str, body: bytes | None, ctx: dict,
+    transport: dict | None = None, _durable_applied: bool = False,
 ) -> tuple[int, bytes | dict, str]:
     parsed = urllib.parse.urlparse(target)
     query = urllib.parse.parse_qs(parsed.query)
     path = parsed.path
+    if not _durable_applied and (
+            (method == "POST" and path in _DURABLE_POST)
+            or (method == "GET" and path in _DURABLE_GET)):
+        return _durable_handle(method, target, body, ctx, transport)
 
     if path == "/api/report" and method == "GET":
         return 200, build_case_report(ctx["base_dir"]), "application/json"
@@ -445,6 +574,9 @@ def handle_request(
         except MissionError as exc:
             return 409, {"error": exc.code, "message": str(exc)}, "application/json"
 
+    if path == "/api/chaos/run" and method == "POST":
+        return _chaos_run(body, transport)
+
     if path == "/api/mission/proposal" and method == "GET":
         try:
             return 200, intervention_proposal(ctx), "application/json"
@@ -495,7 +627,20 @@ class Handler(BaseHTTPRequestHandler):
     def _handle(self) -> None:
         length = int(self.headers.get("Content-Length") or 0)
         body = self.rfile.read(length) if length else None
-        status, payload, content_type = handle_request(self.command, self.path, body, self.context)
+        try:
+            port = self.server.server_address[1]
+        except Exception:  # noqa: BLE001 - fail closed on unknown listener
+            port = -1
+        transport = {
+            "peer": self.client_address[0] if self.client_address else "",
+            "origin": self.headers.get("Origin"),
+            "host": self.headers.get("Host"),
+            "local_origins": {f"http://localhost:{port}",
+                               f"http://127.0.0.1:{port}"},
+            "local_hosts": {f"localhost:{port}", f"127.0.0.1:{port}"},
+        }
+        status, payload, content_type = handle_request(
+            self.command, self.path, body, self.context, transport)
         self._send(status, payload, content_type)
 
     def do_GET(self) -> None:
@@ -509,7 +654,15 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main(port: int = 8000) -> None:
-    Handler.context = new_context()
+    from .persistence import boot_context, resolve_store_dir
+
+    store = resolve_store_dir()
+    ctx, status, message = boot_context(ROOT, store)
+    if status == "abort":
+        print(f"Refusing to start: {message}", file=sys.stderr)
+        raise SystemExit(2)
+    Handler.context = ctx
+    print(message)
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     print(f"FDE Command Center on http://localhost:{port}/frontend/investigate.html")
     try:

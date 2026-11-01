@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import re
 import time
+import uuid
 from pathlib import Path
 
 from .experiment import public_view
@@ -150,7 +151,13 @@ class MissionError(ValueError):
 
 
 def new_mission_state() -> dict:
-    return {"diagnostic": None, "audit_viewed": False, "intervention": None}
+    # Server-minted run identity (MC-004c). Unique per mission instance,
+    # never client-supplied. In-memory only: a process restart creates a
+    # new context and therefore a new run id; the old run is gone, not
+    # restored. The id proves nothing about authorization, receipt
+    # ownership, or tenant isolation.
+    return {"mission_run_id": f"mr-{uuid.uuid4().hex[:16]}",
+            "diagnostic": None, "audit_viewed": False, "intervention": None}
 
 
 def _experiment_status(ctx: dict) -> str:
@@ -218,6 +225,7 @@ def mission_view(ctx: dict) -> dict:
         "diagnostics": list(DIAGNOSTICS.values()),
         "experiment": public_view(ctx["experiment"]),
         "mission": {
+            "mission_run_id": ctx["mission"]["mission_run_id"],
             "diagnostic": ctx["mission"]["diagnostic"],
             "audit_viewed": ctx["mission"]["audit_viewed"],
             "intervention": ctx["mission"]["intervention"],

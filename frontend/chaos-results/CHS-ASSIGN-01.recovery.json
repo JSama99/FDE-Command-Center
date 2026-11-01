@@ -1,0 +1,115 @@
+{
+  "baseline": {
+    "CHS-A": {
+      "ack_valid": true,
+      "assign_delay_min": 20.0,
+      "breaches_1h": false,
+      "classification": "acknowledged",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 30.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 40.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "fault_observations": {
+    "CHS-A": {
+      "ack_valid": false,
+      "assign_delay_min": 320.0,
+      "breaches_1h": true,
+      "classification": "anomalous-needs-source-check",
+      "ordering_anomaly": true,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 330.0,
+      "breaches_1h": true,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 340.0,
+      "breaches_1h": true,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+  "fixture_id": "fixtures/chaos-lab",
+  "note": "",
+  "post_repair": {
+    "CHS-A": {
+      "ack_valid": true,
+      "assign_delay_min": 20.0,
+      "breaches_1h": false,
+      "classification": "acknowledged",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-B": {
+      "ack_valid": false,
+      "assign_delay_min": 30.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    },
+    "CHS-C": {
+      "ack_valid": false,
+      "assign_delay_min": 40.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    }
+  },
+  "post_repair_flags": [
+    "CHS-C"
+  ],
+  "pre_repair_flags": [
+    "CHS-A",
+    "CHS-B",
+    "CHS-C"
+  ],
+  "refs": [
+    "fixtures/chaos-lab/assign.csv",
+    "fixtures/chaos-lab/ack_source.csv",
+    "fixtures/chaos-lab/ack_feed.csv"
+  ],
+  "regression": {
+    "baseline_restored": true,
+    "no_new_anomaly": true,
+    "preexisting_miss_preserved": true
+  },
+  "repair": {
+    "changes": [
+      "CHS-A assigned_at 2026-09-10T13:20:00->2026-09-10T08:20:00",
+      "CHS-B assigned_at 2026-09-10T13:35:00->2026-09-10T08:35:00",
+      "CHS-C assigned_at 2026-09-10T13:50:00->2026-09-10T08:50:00"
+    ],
+    "description": "Remove the injected +300 minute assignment shift."
+  },
+  "repair_id": "restore-assignments",
+  "run_id": "82a39658fa5a183e72d69b10fe1f092d3c2134cc38897e5c3f86d3e78298bb8d",
+  "scenario_id": "CHS-ASSIGN-01",
+  "schema": "ChaosRecoveryResultV1",
+  "status": "verified",
+  "target_resolved": true
+}

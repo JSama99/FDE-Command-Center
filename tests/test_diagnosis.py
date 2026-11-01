@@ -69,7 +69,11 @@ def new_contract_model_output() -> dict:
         ],
         "unresolved_questions": ["Do incomplete windows hide further misses?"],
         "diagnostic_experiments": [
-            {"text": "Extend late-day windows, then recompute.", "refs": ["events.csv"]},
+            {"text": "Extend late-day windows, then recompute.", "refs": ["events.csv"],
+             "question": "Do late-day cases miss only because their windows are incomplete?",
+             "outcomes": {"supports": "Misses persist after extension.",
+                          "weakens": "Extension converts misses to valid acknowledgments."},
+             "tests": [0]},
         ],
         "provisional_recommendation": {
             "text": "Review overnight coverage. No change without approval.",

@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .meta_adapter import MalformedResponseError
+from .meta_adapter import INVESTIGATION_REASONING_EFFORT, MalformedResponseError
 from .report import build_case_report
 
 EXPECTED_SECTIONS = (
@@ -128,7 +128,17 @@ def build_instructions(registry: dict) -> str:
         '- competing_hypotheses: [{"text": string, "refs": [ref...], '
         '"status": "hypothesis"}]. Every hypothesis keeps status "hypothesis".\n'
         "- unresolved_questions: [string, ...] (non-empty).\n"
-        '- diagnostic_experiments: [{"text": string, "refs": [ref...]}].\n'
+        '- diagnostic_experiments: [{"text": string, "refs": [ref...], '
+        '"question": string, "outcomes": {"supports": string, "weakens": string}, '
+        '"tests": [hypothesis indexes], "scope": "operational" or '
+        '"source-quality"}]. Every operational experiment names the '
+        "competing hypotheses it tests by index and states the question plus "
+        "the outcomes that would support or weaken the claim. Source-quality "
+        "checks verify the evidence itself and never count as tests of "
+        "operational hypotheses.\\n"
+        '"- untestable (optional): [{"hypothesis": index, "reason": string}]. '
+        "A hypothesis with no experiment must explain here, with evidence, "
+        "why it cannot currently be tested.\\n"
         "- provisional_recommendation: {\"text\": string, \"refs\": [ref...], "
         '"requires_human_approval": true, "executes_production_change": false}.\n'
         '- counter_evidence: [{"text": string, "refs": [ref...]}].\n'
@@ -284,11 +294,73 @@ def validate_investigation(payload: object, registry: dict) -> dict:
             field_path="unresolved_questions",
         )
 
+    hypotheses = payload["competing_hypotheses"]
+    tested: set[int] = set()
     for i, item in enumerate(payload["diagnostic_experiments"]):
         base = f"diagnostic_experiments[{i}]"
         if not isinstance(item, dict) or "text" not in item or "refs" not in item:
             raise _fail("each experiment needs text and refs", category="malformed-item", field_path=base)
         _check_refs(item["refs"], registry, f"{base}.refs")
+        scope = item.get("scope", "operational")
+        if scope not in ("operational", "source-quality"):
+            raise _fail("experiment scope must be operational or source-quality",
+                        category="malformed-item", field_path=f"{base}.scope")
+        question = item.get("question", "")
+        outcomes = item.get("outcomes", {})
+        if (not isinstance(question, str) or not question.strip()
+                or not isinstance(outcomes, dict)
+                or not isinstance(outcomes.get("supports"), str)
+                or not outcomes["supports"].strip()
+                or not isinstance(outcomes.get("weakens"), str)
+                or not outcomes["weakens"].strip()):
+            raise _fail(
+                "each experiment must state its question and the outcomes "
+                "that would support or weaken the tested claim",
+                category="experiment-undiscriminating", field_path=base)
+        links = item.get("tests", [])
+        if scope == "operational" and not links:
+            raise _fail(
+                "each operational experiment must name the hypotheses it tests",
+                category="experiment-linkage", field_path=f"{base}.tests")
+        if not isinstance(links, list) or any(
+                not isinstance(h, int) or isinstance(h, bool)
+                or h < 0 or h >= len(hypotheses) for h in links):
+            raise _fail(
+                "experiment hypothesis links must index competing_hypotheses",
+                category="experiment-linkage", field_path=f"{base}.tests")
+        # Source-quality checks (quote offsets, feed completeness) verify the
+        # evidence itself; they never count as tests of operational hypotheses.
+        if scope == "operational":
+            tested.update(links)
+
+    untestable = payload.get("untestable", [])
+    if not isinstance(untestable, list):
+        raise _fail("untestable must be a list", category="malformed-item",
+                    field_path="untestable")
+    excused: set[int] = set()
+    for entry in untestable:
+        base = "untestable"
+        if (not isinstance(entry, dict)
+                or not isinstance(entry.get("hypothesis"), int)
+                or isinstance(entry.get("hypothesis"), bool)
+                or entry["hypothesis"] < 0 or entry["hypothesis"] >= len(hypotheses)
+                or not isinstance(entry.get("reason"), str) or not entry["reason"].strip()):
+            raise _fail(
+                "each untestable entry needs a hypothesis index and an "
+                "evidence-grounded reason",
+                category="malformed-item", field_path=base)
+        if entry["hypothesis"] in tested:
+            raise _fail(
+                "a hypothesis cannot be both tested and untestable",
+                category="experiment-linkage", field_path=base)
+        excused.add(entry["hypothesis"])
+    uncovered = [h for h in range(len(hypotheses)) if h not in tested and h not in excused]
+    if uncovered:
+        raise _fail(
+            f"hypotheses {uncovered} have no discriminating experiment and no "
+            "untestable explanation",
+            category="experiment-coverage",
+            field_path="diagnostic_experiments")
 
     rec = payload["provisional_recommendation"]
     if not isinstance(rec, dict) or "text" not in rec or "refs" not in rec:
@@ -396,10 +468,23 @@ def build_offline_investigation(base_dir: str | Path = ".") -> dict:
             {
                 "text": "Extend observation windows for case-005 and case-006, then recompute.",
                 "refs": ["events.csv"],
+                "question": "Do late-day cases miss the deadline only because their windows are incomplete?",
+                "outcomes": {
+                    "supports": "Extended windows still show misses, weakening the incomplete-window reading.",
+                    "weakens": "Extended windows convert misses to valid acknowledgments.",
+                },
+                "tests": [0, 1],
             },
             {
                 "text": "Reconcile the case-008 timestamps against the source log.",
                 "refs": ["case-008"],
+                "question": "Is the case-008 sequence a source-logging error or a real ordering anomaly?",
+                "outcomes": {
+                    "supports": "Source log confirms the anomaly, weakening the logging-error reading.",
+                    "weakens": "Source log shows clean ordering, supporting a feed-transcription error.",
+                },
+                "tests": [1],
+                "scope": "operational",
             },
         ],
         "provisional_recommendation": {
@@ -448,7 +533,9 @@ def produce_investigation(adapter, base_dir: str | Path = ".") -> dict:
     registry = build_evidence_registry(report)
     context = build_model_context(report)
     instructions = build_instructions(registry)
-    raw = adapter.request_structured(context, instructions)
+    raw = adapter.request_structured(
+        context, instructions,
+        reasoning_effort=INVESTIGATION_REASONING_EFFORT)
     payload = parse_model_text(raw) if isinstance(raw, str) else raw
     validated = validate_investigation(payload, registry)
     return {

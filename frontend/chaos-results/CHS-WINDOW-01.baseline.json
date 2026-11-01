@@ -1,0 +1,75 @@
+{
+  "baseline": {
+    "CHS-W1": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    },
+    "CHS-W2": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    }
+  },
+  "classification": "synthetic simulation",
+  "detector": {
+    "basis": [
+      "CHS-W1"
+    ],
+    "flagged": [
+      "CHS-W1"
+    ],
+    "name": "window-observability",
+    "rule": "flag cases whose window closes before created_at + 240 minutes; flagged cases are incomplete, never confirmed misses"
+  },
+  "expected_vs_observed": {
+    "agreement": true,
+    "detector_output": [
+      "CHS-W1"
+    ],
+    "injected_truth": {
+      "fault": "none (baseline variant)",
+      "variant": "baseline"
+    },
+    "note": "Agreement measures detector accuracy against controlled truth; it is not independent discovery of a fault."
+  },
+  "fixture_digest": "53e3b06df8e8b36d0c4c7c33682e7e5069e3f280f1dc39123aa594b340d87ccb",
+  "injected_fault": {
+    "fault": "none (baseline variant)",
+    "variant": "baseline"
+  },
+  "observations": {
+    "CHS-W1": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "incomplete",
+      "ordering_anomaly": false,
+      "window_complete": false
+    },
+    "CHS-W2": {
+      "ack_valid": false,
+      "assign_delay_min": 15.0,
+      "breaches_1h": false,
+      "classification": "confirmed-miss",
+      "ordering_anomaly": false,
+      "window_complete": true
+    }
+  },
+  "recovery": "not-tested",
+  "refs": [
+    "fixtures/chaos-lab/window.csv"
+  ],
+  "run_id": "eceb06c49911aedafb44dc65f9ef3c5eb684c9ebf265c444ecd4a33fc419ddb9",
+  "scenario_id": "CHS-WINDOW-01",
+  "schema": "ChaosSimulationResultV1",
+  "status": "completed",
+  "synthetic_fixture_id": "fixtures/chaos-lab",
+  "variant": "baseline"
+}

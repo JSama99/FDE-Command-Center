@@ -35,10 +35,13 @@ LEGACY_CREDENTIAL_ENV_VAR = "META_API_KEY"
 ENDPOINT_ENV_VAR = "META_MODEL_ENDPOINT"
 
 # Conservative explicit output cap. Largest observed structured output in
-# stored evaluations is ~700 tokens; 2048 gives headroom without changing
-# evidence input or investigation logic. Bounds per-call output spend to
-# 2048/1M * $4.25 = $0.0087 at official Standard pricing.
-MAX_OUTPUT_TOKENS = 2048
+# stored evaluations is ~700 tokens; 4096 gives headroom without changing
+# evidence input or investigation logic. Supported: the documented model
+# maximum output is 131,072 tokens, so 4096 fits with wide margin. Bounds
+# per-call output spend to 4096/1M * $4.25 = $0.0174 at official Standard
+# pricing. Raised from 2048 after a live truncation (incomplete /
+# max_output_tokens); prior responses and scores are unaffected.
+MAX_OUTPUT_TOKENS = 4096
 MIN_OUTPUT_TOKENS = 16
 
 # Fallback used only when a caller supplies no instructions. Production callers
@@ -80,6 +83,27 @@ CATEGORY_EXPLANATIONS = {
 }
 
 
+# Documented Responses API response statuses (corroborated across the
+# provider's Responses documentation and independent implementations).
+# Anything else is recorded as "other": raw provider text is never logged.
+RESPONSE_STATUSES = ("completed", "in_progress", "incomplete", "failed",
+                     "cancelled")
+
+# Documented incomplete_details reasons. Only these are preserved;
+# any other reason is dropped (recorded as None), never logged raw.
+INCOMPLETE_REASONS = ("max_output_tokens", "content_filter")
+
+
+def sanitize_response_status(status: object) -> str:
+    return status if status in RESPONSE_STATUSES else "other"
+
+
+def sanitize_incomplete_reason(response: object) -> str | None:
+    details = response.get("incomplete_details") if isinstance(response, dict) else None
+    reason = details.get("reason") if isinstance(details, dict) else None
+    return reason if reason in INCOMPLETE_REASONS else None
+
+
 class ProviderFailure(ProviderError):
     """ProviderError carrying a sanitized diagnostic dict. The diagnostic
     holds only category, HTTP status, exception class, timeout flag, and
@@ -115,12 +139,14 @@ def classify_transport_error(exc: BaseException) -> dict:
             category = "provider-error"
         return {"category": category, "http_status": status,
                 "exception_class": name, "timeout_occurred": False,
-                "transmission": "confirmed"}
+                "transmission": "confirmed", "response_status": None,
+                "incomplete_reason": None}
     reason = exc.reason if isinstance(exc, urllib.error.URLError) else exc
     if _is_timeout(exc) or _is_timeout(reason):
         return {"category": "timeout", "http_status": None,
                 "exception_class": name, "timeout_occurred": True,
-                "transmission": "possible"}
+                "transmission": "possible", "response_status": None,
+                "incomplete_reason": None}
     import socket
     import ssl
 
@@ -133,7 +159,8 @@ def classify_transport_error(exc: BaseException) -> dict:
         category = "connection"
     return {"category": category, "http_status": None,
             "exception_class": name, "timeout_occurred": False,
-            "transmission": "unknown"}
+            "transmission": "unknown", "response_status": None,
+            "incomplete_reason": None}
 
 
 class MalformedResponseError(ValueError):
@@ -179,13 +206,31 @@ def config_from_env() -> tuple[MetaConfig, str]:
     return MetaConfig(endpoint=endpoint), key
 
 
+# Documented reasoning-effort values for the Responses API. "low" spends
+# fewer reasoning tokens (which share the max_output_tokens budget) for
+# tightly scratched structured outputs. Omitted by default: callers that do
+# not opt in send exactly the previous body.
+REASONING_EFFORTS = ("minimal", "low", "medium", "high", "xhigh", "max")
+
+# Single-variable experiment (Task 009.6e): structured investigations use
+# low reasoning effort after repeated truncation at higher budgets.
+INVESTIGATION_REASONING_EFFORT = "low"
+
+
 def build_responses_payload(model: str, text_input: str,
-                            max_output_tokens: int = MAX_OUTPUT_TOKENS) -> dict:
+                            max_output_tokens: int = MAX_OUTPUT_TOKENS,
+                            reasoning_effort: str | None = None) -> dict:
     """Official Responses API request body. Standard tier is selected by the
     model id itself; the schema carries no separate mode parameter.
-    max_output_tokens is the documented output-token limit field."""
-    return {"model": model, "input": text_input,
+    max_output_tokens is the documented output-token limit field; reasoning
+    effort is included only when explicitly requested."""
+    if reasoning_effort is not None and reasoning_effort not in REASONING_EFFORTS:
+        raise ValueError(f"unknown reasoning effort: {reasoning_effort!r}")
+    body = {"model": model, "input": text_input,
             "max_output_tokens": max_output_tokens}
+    if reasoning_effort is not None:
+        body["reasoning"] = {"effort": reasoning_effort}
+    return body
 
 
 def extract_response_text(response: object) -> str:
@@ -195,10 +240,12 @@ def extract_response_text(response: object) -> str:
     status = response.get("status", "completed")
     if status != "completed":
         raise ProviderFailure(
-            f"provider response status is {status!r}, not completed",
+            "provider response did not complete",
             {"category": "provider-error", "http_status": None,
              "exception_class": "ProviderError", "timeout_occurred": False,
-             "transmission": "confirmed"})
+             "transmission": "confirmed",
+             "response_status": sanitize_response_status(status),
+             "incomplete_reason": sanitize_incomplete_reason(response)})
     output = response.get("output")
     if not isinstance(output, list):
         raise MalformedResponseError("provider response has no output list")
@@ -234,11 +281,12 @@ class MetaModelAdapter:
             return self._api_key.strip()
         return read_api_key()
 
-    def _post(self, text_input: str) -> dict:
+    def _post(self, text_input: str,
+              reasoning_effort: str | None = None) -> dict:
         key = self._key()
         body = json.dumps(build_responses_payload(
             self.config.model, text_input,
-            self.config.max_output_tokens)).encode("utf-8")
+            self.config.max_output_tokens, reasoning_effort)).encode("utf-8")
         request = urllib.request.Request(
             self.config.endpoint,
             data=body,
@@ -263,11 +311,13 @@ class MetaModelAdapter:
         return parsed
 
     def request_text(self, text_input: str) -> str:
+        # Generic text path: unchanged body, no reasoning control.
         return extract_response_text(self._post(text_input))
 
-    def request_structured(self, context: dict, instructions: str | None = None) -> dict:
+    def request_structured(self, context: dict, instructions: str | None = None,
+                           reasoning_effort: str | None = None) -> dict:
         text_input = (instructions or FALLBACK_INSTRUCTIONS) + "\n\nEvidence:\n" + json.dumps(context)
-        text = extract_response_text(self._post(text_input))
+        text = extract_response_text(self._post(text_input, reasoning_effort))
         try:
             parsed = json.loads(text)
         except json.JSONDecodeError as exc:
@@ -287,10 +337,13 @@ class MockAdapter:
         self.canned = canned
         self.last_context: dict | None = None
         self.last_instructions: str | None = None
+        self.last_reasoning_effort: str | None = None
 
-    def request_structured(self, context: dict, instructions: str | None = None) -> dict:
+    def request_structured(self, context: dict, instructions: str | None = None,
+                           reasoning_effort: str | None = None) -> dict:
         self.last_context = context
         self.last_instructions = instructions
+        self.last_reasoning_effort = reasoning_effort
         if self.canned is not None:
             return self.canned
         return {

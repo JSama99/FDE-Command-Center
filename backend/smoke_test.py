@@ -39,7 +39,8 @@ def main() -> int:
         # raw exception string, headers, credentials, or provider bodies.
         print("smoke: provider failure")
         for field in ("category", "http_status", "exception_class",
-                      "timeout_occurred", "transmission"):
+                      "timeout_occurred", "transmission", "response_status",
+                      "incomplete_reason"):
             print(f"smoke: {field}={exc.diagnostic.get(field)}")
         return 3
     except ProviderError:

@@ -1,0 +1,267 @@
+{
+  "attribution": "pass",
+  "confusion": {
+    "false_negatives": 0,
+    "false_positives": 0,
+    "true_negatives": 2,
+    "true_positives": 2
+  },
+  "engine_schema": "ChaosSimulationResultV1",
+  "failures": [],
+  "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+  "fixture_id": "fixtures/chaos-lab",
+  "indeterminate": 0,
+  "judgments": [
+    {
+      "case": "CHS-ACK-01.baseline",
+      "expected_classes": {},
+      "expected_flags": [],
+      "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+      "fixture_id": "fixtures/chaos-lab",
+      "injected_truth": {
+        "fault": "none (baseline variant)",
+        "variant": "baseline"
+      },
+      "kind": "binary",
+      "observed_classes": {
+        "CHS-A": null,
+        "CHS-B": null
+      },
+      "observed_flags": [],
+      "refs": [
+        "fixtures/chaos-lab/ack_feed.csv",
+        "fixtures/chaos-lab/ack_source.csv",
+        "fixtures/chaos-lab/ack_feed.csv",
+        "fixtures/chaos-lab/ack_source.csv"
+      ],
+      "rule": "R-ACK-QUIET",
+      "scenario_id": "CHS-ACK-01",
+      "status": "pass",
+      "variant": "baseline"
+    },
+    {
+      "case": "CHS-ACK-01.injected",
+      "expected_classes": {},
+      "expected_flags": [
+        "CHS-A"
+      ],
+      "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+      "fixture_id": "fixtures/chaos-lab",
+      "injected_truth": {
+        "fault": "CHS-A acknowledgment dropped from the in-memory feed copy.",
+        "variant": "injected"
+      },
+      "kind": "binary",
+      "observed_classes": {
+        "CHS-A": null,
+        "CHS-B": null
+      },
+      "observed_flags": [
+        "CHS-A"
+      ],
+      "refs": [
+        "fixtures/chaos-lab/ack_feed.csv",
+        "fixtures/chaos-lab/ack_source.csv",
+        "fixtures/chaos-lab/ack_feed.csv",
+        "fixtures/chaos-lab/ack_source.csv"
+      ],
+      "rule": "R-ACK-FLAG",
+      "scenario_id": "CHS-ACK-01",
+      "status": "pass",
+      "variant": "injected"
+    },
+    {
+      "case": "CHS-ASSIGN-01.baseline",
+      "expected_classes": {
+        "CHS-A": "acknowledged",
+        "CHS-B": "confirmed-miss",
+        "CHS-C": "incomplete"
+      },
+      "expected_flags": [],
+      "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+      "fixture_id": "fixtures/chaos-lab",
+      "injected_truth": {
+        "fault": "none (baseline variant)",
+        "variant": "baseline"
+      },
+      "kind": "binary",
+      "observed_classes": {
+        "CHS-A": "acknowledged",
+        "CHS-B": "confirmed-miss",
+        "CHS-C": "incomplete"
+      },
+      "observed_flags": [],
+      "refs": [
+        "fixtures/chaos-lab/assign.csv",
+        "fixtures/chaos-lab/assign.csv"
+      ],
+      "rule": "R-ASSIGN-QUIET",
+      "scenario_id": "CHS-ASSIGN-01",
+      "status": "pass",
+      "variant": "baseline"
+    },
+    {
+      "case": "CHS-ASSIGN-01.injected",
+      "expected_classes": {
+        "CHS-A": "anomalous-needs-source-check",
+        "CHS-B": "confirmed-miss",
+        "CHS-C": "incomplete"
+      },
+      "expected_flags": [
+        "CHS-A",
+        "CHS-B",
+        "CHS-C"
+      ],
+      "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+      "fixture_id": "fixtures/chaos-lab",
+      "injected_truth": {
+        "fault": "Assignment timestamps shifted +300 minutes on the in-memory copy.",
+        "variant": "injected"
+      },
+      "kind": "binary",
+      "observed_classes": {
+        "CHS-A": "anomalous-needs-source-check",
+        "CHS-B": "confirmed-miss",
+        "CHS-C": "incomplete"
+      },
+      "observed_flags": [
+        "CHS-A",
+        "CHS-B",
+        "CHS-C"
+      ],
+      "refs": [
+        "fixtures/chaos-lab/assign.csv",
+        "fixtures/chaos-lab/assign.csv"
+      ],
+      "rule": "R-ASSIGN-FLAG",
+      "scenario_id": "CHS-ASSIGN-01",
+      "status": "pass",
+      "variant": "injected"
+    },
+    {
+      "case": "CHS-WINDOW-01.baseline",
+      "expected_classes": {
+        "CHS-W1": "incomplete",
+        "CHS-W2": "confirmed-miss"
+      },
+      "expected_flags": [
+        "CHS-W1"
+      ],
+      "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+      "fixture_id": "fixtures/chaos-lab",
+      "injected_truth": {
+        "fault": "none (baseline variant)",
+        "variant": "baseline"
+      },
+      "kind": "safety",
+      "observed_classes": {
+        "CHS-W1": "incomplete",
+        "CHS-W2": "confirmed-miss"
+      },
+      "observed_flags": [
+        "CHS-W1"
+      ],
+      "refs": [
+        "fixtures/chaos-lab/window.csv",
+        "fixtures/chaos-lab/window.csv"
+      ],
+      "rule": "R-WINDOW-OBSERVABLE",
+      "scenario_id": "CHS-WINDOW-01",
+      "status": "pass",
+      "variant": "baseline"
+    },
+    {
+      "case": "CHS-WINDOW-01.injected",
+      "expected_classes": {
+        "CHS-W1": "incomplete",
+        "CHS-W2": "incomplete"
+      },
+      "expected_flags": [
+        "CHS-W1",
+        "CHS-W2"
+      ],
+      "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+      "fixture_id": "fixtures/chaos-lab",
+      "injected_truth": {
+        "fault": "CHS-W2 window_close moved to 09:00 on the in-memory copy.",
+        "variant": "injected"
+      },
+      "kind": "safety",
+      "observed_classes": {
+        "CHS-W1": "incomplete",
+        "CHS-W2": "incomplete"
+      },
+      "observed_flags": [
+        "CHS-W1",
+        "CHS-W2"
+      ],
+      "refs": [
+        "fixtures/chaos-lab/window.csv",
+        "fixtures/chaos-lab/window.csv"
+      ],
+      "rule": "R-WINDOW-INCOMPLETE",
+      "scenario_id": "CHS-WINDOW-01",
+      "status": "pass",
+      "variant": "injected"
+    },
+    {
+      "case": "C3-preexisting-violation",
+      "detail": "CHS-B confirmed-miss in baseline and injected",
+      "refs": [
+        "fixtures/chaos-lab/assign.csv"
+      ],
+      "rule": "R-PREEXISTING",
+      "scenario_id": "CHS-ASSIGN-01",
+      "status": "pass"
+    },
+    {
+      "case": "C9-malformed-record",
+      "refs": [
+        "fixtures/chaos-lab/ack_feed.csv",
+        "fixtures/chaos-lab/ack_source.csv"
+      ],
+      "rule": "R-REJECT-MALFORMED",
+      "status": "pass"
+    },
+    {
+      "case": "C10-fabricated-flag",
+      "refs": [
+        "fixtures/chaos-lab/ack_feed.csv",
+        "fixtures/chaos-lab/ack_source.csv"
+      ],
+      "rule": "R-REJECT-FABRICATED",
+      "status": "pass"
+    }
+  ],
+  "metrics": {
+    "false_negative_rate": 0.0,
+    "false_negative_rate_denominator": 2,
+    "false_negatives": 0,
+    "false_positive_rate": 0.0,
+    "false_positive_rate_denominator": 2,
+    "false_positives": 0,
+    "precision": 1.0,
+    "precision_denominator": 2,
+    "recall": 1.0,
+    "recall_denominator": 2,
+    "true_negatives": 2,
+    "true_positives": 2
+  },
+  "overall": "pass",
+  "robustness": {
+    "C10-fabricated-flag": "pass",
+    "C9-malformed-record": "pass"
+  },
+  "safety": {
+    "cases": 2,
+    "correct": 2
+  },
+  "schema": "ChaosEvaluationReportV1",
+  "scope": "synthetic offline evaluation only; passing here does not establish production reliability",
+  "unavailable": [
+    {
+      "case": "C8-order-anomaly",
+      "reason": "no chaos-lab fixture contains an ordering anomaly"
+    }
+  ]
+}

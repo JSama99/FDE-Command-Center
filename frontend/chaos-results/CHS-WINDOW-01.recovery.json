@@ -1,0 +1,24 @@
+{
+  "baseline": {},
+  "fault_observations": {},
+  "fixture_digest": "57f5d8cb9b94f933aa77356876c45f17b7ec0d65490ce77921dc79272f8460f5",
+  "fixture_id": "fixtures/chaos-lab",
+  "note": "Recovery not tested \u2014 insufficient verified post-repair evidence. Extending the window would need new synthetic source records showing an acknowledgment arriving inside the extended interval; none exist, and missing timestamps must not be manufactured.",
+  "post_repair": null,
+  "post_repair_flags": [],
+  "pre_repair_flags": [],
+  "refs": [
+    "fixtures/chaos-lab/window.csv"
+  ],
+  "regression": {},
+  "repair": {
+    "changes": [],
+    "description": "no allowlisted repair"
+  },
+  "repair_id": "none-available",
+  "run_id": "b00f3359ece6e1c0ad71c6b14ac2fe4e2589bd8554d900c389edfa6aa218a12e",
+  "scenario_id": "CHS-WINDOW-01",
+  "schema": "ChaosRecoveryResultV1",
+  "status": "not-tested",
+  "target_resolved": false
+}
