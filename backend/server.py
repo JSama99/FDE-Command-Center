@@ -244,8 +244,8 @@ _DURABLE_GET = {"/api/mission/diagnostic/result"}
 
 
 def _durable_handle(method: str, target: str, body: bytes | None,
-                    ctx: dict,
-                    transport: dict | None) -> tuple[int, bytes | dict, str]:
+                    ctx: dict, transport: dict | None,
+                    path: str) -> tuple[int, bytes | dict, str]:
     """Save-after-accept wrapper. Legacy in-place behavior applies when
     the context carries no "_store_dir" (plain new_context() callers,
     including the pre-existing test suite); booted server contexts
@@ -255,7 +255,7 @@ def _durable_handle(method: str, target: str, body: bytes | None,
     if "_store_dir" not in ctx:
         return handle_request(method, target, body, ctx, transport,
                               _durable_applied=True)
-    with _PERSIST_LOCK:
+    with _PERSIST_LOCK:  # noqa: unreachable when _store_dir absent
         if ctx.get("_persistence_degraded"):
             return 503, {"error": "persistence-degraded",
                          "message": ERROR_MESSAGES["persistence-degraded"]}, \
@@ -268,17 +268,53 @@ def _durable_handle(method: str, target: str, body: bytes | None,
         if status != 200:
             # Rejected transitions write nothing; keep failure diagnostics.
             ctx["diagnostics"] = work.get("diagnostics", ctx["diagnostics"])
+            _audit_best_effort(
+                ctx, f"{method} {path}", "rejected",
+                ctx.get("_snapshot_revision", 0),
+                (payload.get("error") if isinstance(payload, dict)
+                 else "unknown"))
             return status, payload, content_type
         try:
-            commit_transition(ctx, work)
+            revision = commit_transition(ctx, work)
         except PersistenceError as exc:
+            _audit_best_effort(ctx, f"{method} {path}", "failed",
+                               ctx.get("_snapshot_revision", 0), exc.code)
             code = "persistence-degraded" \
                 if ctx.get("_persistence_degraded") else "persistence-failed"
             status = 503 if code == "persistence-degraded" else 500
             message = ERROR_MESSAGES[code] + f" ({exc.code})"
             return status, {"error": code, "message": message}, \
                 "application/json"
+        try:
+            _audit_record(ctx, f"{method} {path}", "accepted", revision,
+                          None)
+        except Exception as exc:  # noqa: BLE001 - audited below, never acked
+            ctx["_persistence_degraded"] = True
+            print(f"audit log failed after durable commit "
+                  f"(rev {revision}); future mutations refused until "
+                  f"restart: {exc}", file=sys.stderr)
         return status, payload, content_type
+
+
+def _audit_record(ctx: dict, event: str, outcome: str,
+                  revision: int | None, code: str | None) -> None:
+    from .audit_log import AuditError, append
+
+    try:
+        append(ctx["_store_dir"], event, outcome,
+               ctx["mission"]["mission_run_id"], revision,
+               "mission-transition", code)
+    except AuditError as exc:
+        raise exc
+
+
+def _audit_best_effort(ctx: dict, event: str, outcome: str,
+                       revision: int | None, code: str | None) -> None:
+    try:
+        _audit_record(ctx, event, outcome, revision, code)
+    except Exception as exc:  # noqa: BLE001 - observability only
+        print(f"audit log write failed (event not audited): {exc}",
+              file=sys.stderr)
 
 
 def handle_request(
@@ -291,7 +327,8 @@ def handle_request(
     if not _durable_applied and (
             (method == "POST" and path in _DURABLE_POST)
             or (method == "GET" and path in _DURABLE_GET)):
-        return _durable_handle(method, target, body, ctx, transport)
+        return _durable_handle(method, target, body, ctx, transport,
+                                path)
 
     if path == "/api/report" and method == "GET":
         return 200, build_case_report(ctx["base_dir"]), "application/json"
@@ -663,6 +700,16 @@ def main(port: int = 8000) -> None:
         raise SystemExit(2)
     Handler.context = ctx
     print(message)
+    if Path(store).is_dir():
+        try:
+            from .audit_log import append as audit_append
+
+            audit_append(store, f"server boot ({status})", "started",
+                         ctx["mission"]["mission_run_id"],
+                         ctx.get("_snapshot_revision", 0), "boot", None)
+        except Exception as exc:  # noqa: BLE001 - observability only
+            print(f"audit log unavailable at boot (continuing unaudited): "
+                  f"{exc}", file=sys.stderr)
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     print(f"FDE Command Center on http://localhost:{port}/frontend/investigate.html")
     try:

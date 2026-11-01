@@ -287,3 +287,15 @@ contexts carrying `_store_dir` (booted server); plain
 `FDE_MISSION_STORE` or `mission-snapshots/` (gitignored, never
 statically served).
 
+### 12.7 CP-002 operations record
+
+Audit: metadata-only JSONL (`audit.log`, 0600) appended after each
+durable accept/reject/failure plus boot; never bodies, rationales, or
+secrets. A failed audit write after a committed transition returns the
+truthful 200 but forces degraded mode (mutations 503) until restart;
+reject-path audit failures go to stderr and never break the rejection.
+Backup: `backend/backup.py` copies snapshot generations, pointer, and
+audit log with a hash manifest, verifies pointer stability across the
+copy, and restores only into empty directories after re-verification.
+No replay, no overwrite, no cloud.
+

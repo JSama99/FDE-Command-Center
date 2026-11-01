@@ -36,6 +36,7 @@
     <div id="error" role="alert"></div>
 
     <section class="mcview active" id="view-overview" aria-label="Mission Control overview">
+      <p class="orient"><strong>Orientation — Overview.</strong> What is being investigated and what stage it is at. Establishes the mission question and current stage — not what caused anything. Next: open the Investigation workspace to inspect evidence.</p>
       <div class="glass panel lifted">
         <div class="statusline"><span class="mission-name">case-001 control overview</span><span id="mcStatus"></span></div>
         <div class="hero" id="mcHero"></div>
@@ -51,6 +52,7 @@
     </section>
 
     <section class="mcview" id="view-investigation" aria-label="Investigation context">
+      <p class="orient"><strong>Orientation — Investigation.</strong> The evidence map, ledger, and inspector. Establishes what is recorded, how each item is classified, and where it comes from — never what caused what. Next: compare the two explanations in the Hypothesis Lab.</p>
       <div class="glass panel">
         <h2>Investigation summary</h2>
         <div class="hero" id="mcSummary"></div>
@@ -86,6 +88,7 @@
     </section>
 
     <section class="mcview" id="view-hypothesis" aria-label="Hypothesis Lab">
+      <p class="orient"><strong>Orientation — Hypothesis Lab.</strong> H-ACK and H-QUEUE side by side with the evidence relevant to each. Establishes what would discriminate between them — nothing here locks predictions, reveals outcomes, or records decisions. Next: authorized actions happen in the Field Mission.</p>
       <div class="glass panel">
         <h2>Hypothesis Lab (read-only)</h2>
         <div class="prose">The two competing explanations, side by side with the evidence relevant to each. Nothing here locks predictions, reveals outcomes, or records decisions.</div>
@@ -103,6 +106,7 @@
     </section>
 
     <section class="mcview" id="view-decision" aria-label="Decision Room">
+      <p class="orient"><strong>Orientation — Decision Room.</strong> Read-only review of the proposal, verification plan, and recorded human decision. Establishes what is proposed and decided — approval is impossible here and execution happens nowhere in this product. Next: act in the Field Mission, cite the final report.</p>
       <div class="glass panel">
         <h2>Decision Room</h2>
         <div class="prose" id="mcDecisionContext"></div>
@@ -139,6 +143,7 @@
     </section>
 
     <section class="mcview" id="view-chaos" aria-label="Chaos Lab">
+      <p class="orient"><strong>Orientation — Chaos Lab.</strong> Fictional failure scenarios with previously generated results. Establishes what would be detectable and what recovery would require — never a finding about a real system. Tabs, in order: Scenario, Simulation Results, Evaluation, Recovery. Next: start at the Scenario tab and work left to right.</p>
       <div class="glass panel">
         <h2>Chaos Lab (synthetic demonstration)</h2>
         <div class="prose">Fictional failure scenarios for exploring what would be detectable and what evidence recovery would require. Nothing here executes, measures, or verifies anything.</div>

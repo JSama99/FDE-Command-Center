@@ -407,11 +407,11 @@ function renderDecision() {
      (contra ? `<button data-room="${esc(contra.id)}">Inspect contradiction</button> ` : "")
      + `<button data-room-goto="view-investigation">Open evidence ledger →</button>`],
     ["Root-cause determination",
-     assess ? `Deterministic assessment: ${assess.result}. ${assess.reason}` : "Not established — H-ACK and H-QUEUE remain competing interpretations",
+     assess ? `Deterministic assessment: ${assess.result}. ${assess.reason} ${assessmentPlainTerms(assess.result)}` : "Not established — H-ACK and H-QUEUE remain competing interpretations",
      assess ? "single-case support, not an organization-wide root cause" : "no causal claim made",
      `<button data-room-goto="view-hypothesis">Compare hypotheses →</button>`],
     ["Human authorization",
-     interven ? `${interven.decision} recorded on ${interven.proposal.proposal_id} ${interven.proposal.version} — executed: ${interven.executed}` : "No decision recorded",
+     interven ? `${interven.decision} recorded on ${interven.proposal.proposal_id} ${interven.proposal.version} — executed: ${interven.executed}. Plain terms: this records a human decision, not an execution — nothing runs in production.` : "No decision recorded",
      interven ? "decision bound to proposal version" : "approval happens in the Field Mission",
      `<a class="field-link" href="mission.html">Open the Field Mission →</a>`],
   ];
@@ -421,6 +421,12 @@ function renderDecision() {
   renderProposal();
   renderVerify();
   renderHumanReview();
+}
+
+function assessmentPlainTerms(result) {
+  if (result === "supported") return "Plain terms: the locked prediction matched the revealed observation for this one case — evidence for the tested explanation, not proof of the root cause, and nothing is fixed.";
+  if (result === "contradicted") return "Plain terms: the revealed observation went against the locked prediction — this weakens the tested explanation, does not confirm the alternative, and nothing is fixed.";
+  return `Plain terms: the recorded comparison ended as '${result}' — that settles nothing by itself, and nothing is fixed.`;
 }
 
 function openEvidence(id) {
@@ -662,6 +668,11 @@ const CHAOS_RECOVERY_ALLOWLIST = {
   "CHS-WINDOW-01": ["none-available"],
 };
 
+function recoveryDisplay(status) {
+  return {"verified": "checks passed (synthetic)", "failed": "failed (synthetic)",
+    "inconclusive": "inconclusive (synthetic)", "not-tested": "not tested"}[status] || status;
+}
+
 function checkRecoveryRecord(r) {
   if (!r || r.schema !== "ChaosRecoveryResultV1") return false;
   if (!CHAOS_RECOVERY_ALLOWLIST[r.scenario_id]
@@ -689,7 +700,7 @@ async function loadRecoveryRecords() {
     const reg = Object.entries(r.regression || {}).map(([k, v]) =>
       `<li>${esc(k)}: ${esc(v)}</li>`).join("") || "<li>no regression checks (not tested)</li>";
     panels.push(`<div class="glass panel"><h3>${esc(r.scenario_id)} — ${esc(r.repair_id)}</h3>`
-      + `<div class="insp-row"><dt>Status</dt><dd><span class="tag">${esc(r.status)}</span></dd></div>`
+      + `<div class="insp-row"><dt>Status</dt><dd><span class="tag" data-status="${esc(r.status)}">${esc(recoveryDisplay(r.status))}</span></dd></div>`
       + `<div class="insp-row"><dt>Fixture</dt><dd>${esc(r.fixture_id)}</dd></div>`
       + `<div class="insp-row"><dt>Repair</dt><dd>${esc((r.repair || {}).description || "")}<br>${esc(((r.repair || {}).changes || []).join("; "))}</dd></div>`
       + `<div class="insp-row"><dt>Pre-repair findings</dt><dd>${esc((r.pre_repair_flags || []).join(", ") || "none")}</dd></div>`

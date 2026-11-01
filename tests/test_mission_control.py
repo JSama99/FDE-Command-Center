@@ -564,8 +564,9 @@ class ChaosDashboardTest(unittest.TestCase):
                       "insufficient verified",
                       "never production recovery"):
             self.assertIn(token, rec, msg=token)
-        self.assertEqual(rec.count(">verified<"), 2)
-        self.assertIn(">not-tested<", rec)
+        self.assertEqual(rec.count('data-status="verified"'), 2)
+        self.assertEqual(rec.count("checks passed (synthetic)"), 2)
+        self.assertIn("not tested", rec)
         self.assert_no_withheld(out)
 
     def test_results_summary_tab(self):

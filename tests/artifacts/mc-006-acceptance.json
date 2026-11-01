@@ -65,16 +65,19 @@
     "frontend/chaos-results/CHS-ASSIGN-01.recovery.json": "068de50e689ed97b970ede5ee1cc7e6073ef1afc4c3f8b385b8dfe9437834d8b",
     "frontend/chaos-results/CHS-ACK-01.recovery.json": "88ba8d4b2315a3c4e2bf977426223ec52de4a61d6172dbbd7f8a3f05e0a57c61",
     "frontend/chaos-results/CHS-WINDOW-01.recovery.json": "f8a889ef745ba53d120b87596d4af3ab720b79a2b47717c4be2dc0a4edee8c7b",
-    "frontend/control.html": "3326338f8d04fa8bc1d8dac69291db777cd0fb3622319720173909ada9955f12",
-    "frontend/control.js": "a66566060637b864d7da53733d88f2ec4d301217ac74f97fc817d2520a1360f4",
-    "frontend/control.css": "5fdac6fde44396314f61fbbff607941d17d71ec2fec34c8a10ae10b94bd9e2b9",
+    "frontend/control.html": "6eb3aa705b428839d9018f4f3417e5237301bd109152cb629f7f58135d6cfba6",
+    "frontend/control.js": "08b29c49799aa7dac43fb6cb08577ced57760ae5790cac934897315b2d175961",
+    "frontend/control.css": "5d03670a62faec47e7db8ca7f8d8b22db7b3f5fc2b2828e3a07a68018dd18f5b",
     "backend/chaos_simulation.py": "ae6065dda3ce674326ba33a0498814696beac15b4e2c25ad04f0e0d23fc72e49",
     "backend/chaos_evaluation.py": "17a552ab2d8e1ae1eab9ec392232b1575ad4582b595d99cde0ea9a8a2806ea1e",
     "backend/chaos_recovery.py": "b14f24357b6b3e14a6693c4dbf66ac204e40d7d0416a795f234ab1432c176094",
-    "backend/server.py": "25f2cddd3c54c9dc75a79defd3489bc9936800b785981909d6be55f39c582326",
+    "backend/server.py": "b8440906e85241a7c162c4bdad02474e567ac9d887ac81dbf841bdba99210f2a",
     "backend/mission.py": "14b4be5b6511f8daeab747fe78534cac065884b576a77131088496da305aed6f",
     "backend/persistence.py": "6a58e6ba4b73b0fed217211ad27e66f66c18680569b4125982a4703102940959",
-    "backend/active_run.py": "42ad3920b3c57df9b821376f8dcf996005321ab6361837df6919ae63171bd568"
+    "backend/active_run.py": "42ad3920b3c57df9b821376f8dcf996005321ab6361837df6919ae63171bd568",
+    "backend/audit_log.py": "6e9b6815b3b8bc45db527a72eb3158cede1710be1413ffdaf1f659b2c49f634d",
+    "backend/backup.py": "a601916a38dcab3da655d9d7c28e954921a4b894e72e3508b9e398d2cc114c67",
+    "tests/test_cp003s1.py": "40628d8482c2603dcca950f49a018c9a25341fcd67dd8aa65099adde322a1759"
   },
   "security_boundaries": {
     "chaos_run_endpoint": "POST /api/chaos/run, loopback + Origin/Host validated, allowlisted scenario/variant only",
@@ -114,6 +117,36 @@
         }
       },
       "unchanged_mc006_hashes": true
+    },
+    "CP-002": {
+      "reason": "audit-log hooks + boot audit (server.py); new offline modules audit_log.py, backup.py",
+      "superseded_hashes": {
+        "backend/server.py": {
+          "mc007_3": "25f2cddd3c54c9dc75a79defd3489bc9936800b785981909d6be55f39c582326",
+          "cp002": "b8440906e85241a7c162c4bdad02474e567ac9d887ac81dbf841bdba99210f2a"
+        }
+      },
+      "unchanged_others": true
+    },
+    "CP-003.S1": {
+      "reason": "clarity pass: outcome lines, synthetic display labels, orientation strips; recovery display contract updated in test_mission_control.py",
+      "superseded_hashes": {
+        "frontend/control.html": {
+          "previous": "3326338f8d04fa8bc1d8dac69291db777cd0fb3622319720173909ada9955f12",
+          "cp003s1": "6eb3aa705b428839d9018f4f3417e5237301bd109152cb629f7f58135d6cfba6"
+        },
+        "frontend/control.js": {
+          "previous": "a66566060637b864d7da53733d88f2ec4d301217ac74f97fc817d2520a1360f4",
+          "cp003s1": "08b29c49799aa7dac43fb6cb08577ced57760ae5790cac934897315b2d175961"
+        },
+        "frontend/control.css": {
+          "previous": "5fdac6fde44396314f61fbbff607941d17d71ec2fec34c8a10ae10b94bd9e2b9",
+          "cp003s1": "5d03670a62faec47e7db8ca7f8d8b22db7b3f5fc2b2828e3a07a68018dd18f5b"
+        }
+      },
+      "tests_changed": [
+        "tests/test_mission_control.py::ChaosDashboardTest::test_recovery_tab_renders_records"
+      ]
     }
   }
 }
