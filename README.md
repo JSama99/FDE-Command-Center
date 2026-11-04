@@ -1,5 +1,39 @@
 # FDE Command Center
 
+### TalonSight Technologies
+
+**From uncertainty to evidence-backed engineering decisions.**
+
+FDE Command Center 2 is an investigation platform combining source provenance, competing hypotheses, immutable diagnostic predictions, deterministic assessments, human decisions, and graphical evidence exploration.
+
+## Demo
+
+🎬 **[Watch the 3-Minute YouTube Demo](https://youtu.be/0wfe180H3VU)**
+
+🌐 **Live Application:** Public deployment pending.
+
+The application currently runs locally for synthetic demonstrations.
+
+## Running Locally
+
+```bash
+cd ~/Documents/FDE-Command-Center-2
+
+FDE2_PROFILE=dev \
+FDE2_DATA_DIR=/tmp/fde2-safari \
+python3 -m backend.server --port 18080
+```
+
+Then visit `http://127.0.0.1:18080/`.
+
+The seven graphical investigation workspaces are available at `/visual.html`.
+
+> Security notice: Synthetic demonstration data only. Not approved for real customer data or public network deployment.
+
+## Developed by
+
+TalonSight Technologies
+
 AI-powered operational investigation assistant for Forward Deployed Engineers.
 Helps explain why a business system fails to produce expected outcomes even
 when the technical system looks healthy.
